@@ -6,3 +6,5 @@
 .DS_Store
 /build
 /captures
+app/src/main/java/nullworks/com/inked/InstaAppData.java
+app/google-services.json

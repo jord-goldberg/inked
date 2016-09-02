@@ -1,4 +1,4 @@
-package nullworks.com.inked;
+package nullworks.com.inked.fragments;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +15,8 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 
+import nullworks.com.inked.InstaAppData;
+import nullworks.com.inked.R;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.FormBody;

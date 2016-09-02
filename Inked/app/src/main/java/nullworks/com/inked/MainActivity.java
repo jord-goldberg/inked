@@ -21,6 +21,8 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 
+import nullworks.com.inked.fragments.LoginDialogFragment;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         LoginDialogFragment.AccessTokenReceived {
