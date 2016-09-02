@@ -20,19 +20,40 @@
         <menu>
             <group android:checkableBehavior="single">
                 <item
-                    android:id="@+id/nav_camera"
-                    android:icon="@drawable/ic_menu_camera"
-                    android:title="Import" />
+                    android:id="@+id/nav_home"
+                    android:title="Home" />
                 <item
-                    android:id="@+id/nav_slideshow"
-                    android:icon="@drawable/ic_menu_slideshow"
-                    android:title="Slideshow" />
+                    android:id="@+id/nav_trad_amer"
+                    android:title="American Traditional" />
                 <item
-                    android:id="@+id/nav_manage"
-                    android:icon="@drawable/ic_menu_manage"
-                    android:title="Tools" />
+                    android:id="@+id/nav_trad_jap"
+                    android:title="Japanese Traditional" />
+                <item
+                    android:id="@+id/nav_surreal"
+                    android:title="Surreal/Horror" />
+                <item
+                    android:id="@+id/nav_tribal"
+                    android:title="Tribal" />
+                <item
+                    android:id="@+id/nav_geometric"
+                    android:title="Geometric" />
+                <item
+                    android:id="@+id/nav_watercolor"
+                    android:title="Watercolor" />
+                <item
+                    android:id="@+id/nav_realistic"
+                    android:title="Realistic" />
+                <item
+                    android:id="@+id/nav_lettering"
+                    android:title="Lettering" />
             </group>
         </menu>
     </item>
+
+    <item
+        android:id="@+id/nav_logout"
+        android:icon="@drawable/ic_menu_account"
+        android:title="Logout"
+        android:visible="true"/>
 
 </menu>

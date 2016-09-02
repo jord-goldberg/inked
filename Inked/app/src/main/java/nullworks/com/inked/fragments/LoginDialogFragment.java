@@ -24,8 +24,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 /**
  * Created by joshuagoldberg on 9/1/16.
@@ -55,7 +53,7 @@ public class LoginDialogFragment extends DialogFragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View viewRoot = inflater.inflate(R.layout.dialog_login, container, false);
+        View viewRoot = inflater.inflate(R.layout.fragment_dialog_login, container, false);
         mWebView = (WebView) viewRoot.findViewById(R.id.login_webview);
         mAccessTokenReceived = (AccessTokenReceived) getContext();
         return viewRoot;
@@ -143,7 +141,7 @@ public class LoginDialogFragment extends DialogFragment {
         });
     }
 
-    interface AccessTokenReceived {
+    public interface AccessTokenReceived {
         void onAccessTokenReceived(String accessToken, String userName, String profilePicUrl,
                                    String fullName, String userId);
     }
