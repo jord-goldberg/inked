@@ -3,7 +3,7 @@ package nullworks.com.inked.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class LocalUser {
+public class AccessToken {
 
     @SerializedName("access_token")
     @Expose

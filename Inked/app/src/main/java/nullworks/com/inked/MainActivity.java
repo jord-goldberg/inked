@@ -1,5 +1,6 @@
 package nullworks.com.inked;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
@@ -19,6 +20,8 @@ import com.bumptech.glide.Glide;
 
 import nullworks.com.inked.adapters.MainPagerAdapter;
 import nullworks.com.inked.fragments.LoginDialogFragment;
+import nullworks.com.inked.models.AccessToken;
+import nullworks.com.inked.models.User;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
@@ -41,6 +44,9 @@ public class MainActivity extends AppCompatActivity
 
     private ViewPager mViewPager;
     private MainPagerAdapter mPagerAdapter;
+
+    private String mAccessToken;
+    private User mInstaUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +90,13 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        if (getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null) != null) {
-            Menu menu = mNavigationView.getMenu();
-            menu.getItem(0).setVisible(false);
-            menu.getItem(1).setVisible(true);
-            menu.getItem(2).setVisible(true);
-
-        }
+//        if (getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null) != null) {
+//            Menu menu = mNavigationView.getMenu();
+//            menu.getItem(0).setVisible(false);
+//            menu.getItem(1).setVisible(true);
+//            menu.getItem(2).setVisible(true);
+//
+//        }
     }
 
     @Override
@@ -136,6 +142,9 @@ public class MainActivity extends AppCompatActivity
                 dialogFragment.show(getSupportFragmentManager(), "dialog");
                 break;
             case R.id.nav_account:
+                Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+                intent.putExtra(ACCESS_TOKEN, mAccessToken);
+                startActivity(intent);
                 break;
             case R.id.nav_gallery:
                 break;
@@ -176,16 +185,25 @@ public class MainActivity extends AppCompatActivity
 
     // Runs after a user logs in. Stores the access token and changes the Nav Menu items
     @Override
-    public void onAccessTokenReceived(String accessToken, String userName, final String profilePicUrl,
-                                      String fullName, String userId) {
+    public void onAccessTokenReceived(AccessToken accessToken) {
+
+        mAccessToken = accessToken.getAccessToken();
+        mInstaUser = accessToken.getUser();
+
         getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
                 .edit()
-                .putString(ACCESS_TOKEN, accessToken)
-                .putString(USER_NAME, userName)
-                .putString(PROFILE_PIC_URL, profilePicUrl)
-                .putString(FULL_NAME, fullName)
-                .putString(USER_ID, userId)
+                .putString(ACCESS_TOKEN, mAccessToken)
+                .putString(USER_ID, mInstaUser.getId())
                 .commit();
+
+//        getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+//                .edit()
+//                .putString(ACCESS_TOKEN, accessToken)
+//                .putString(USER_NAME, userName)
+//                .putString(PROFILE_PIC_URL, profilePicUrl)
+//                .putString(FULL_NAME, fullName)
+//                .putString(USER_ID, userId)
+//                .commit();
 
         runOnUiThread(new Runnable() {
             @Override
@@ -196,9 +214,11 @@ public class MainActivity extends AppCompatActivity
                 menu.getItem(2).setVisible(true);
 
                 Glide.with(MainActivity.this)
-                        .load(profilePicUrl)
+                        .load(mInstaUser.getProfilePicture())
                         .fitCenter()
                         .into(mNavImageView);
+                mNavFullNameTV.setText(mInstaUser.getFullName());
+                mNavUserNameTV.setText(mInstaUser.getUsername());
             }
         });
     }
