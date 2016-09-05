@@ -4,7 +4,9 @@ package nullworks.com.inked.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class User {
+import java.io.Serializable;
+
+public class User implements Serializable {
 
     @SerializedName("username")
     @Expose
@@ -24,6 +26,19 @@ public class User {
     @SerializedName("id")
     @Expose
     private String id;
+
+    public User() {
+
+    }
+
+    public User(String bio, String fullName, String id, String profilePicture, String username, String website) {
+        this.bio = bio;
+        this.fullName = fullName;
+        this.id = id;
+        this.profilePicture = profilePicture;
+        this.username = username;
+        this.website = website;
+    }
 
     /**
      *

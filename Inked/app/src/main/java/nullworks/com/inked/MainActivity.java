@@ -17,6 +17,13 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.firebase.ui.auth.AuthUI;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.io.Serializable;
 
 import nullworks.com.inked.adapters.MainPagerAdapter;
 import nullworks.com.inked.fragments.LoginDialogFragment;
@@ -31,9 +38,7 @@ public class MainActivity extends AppCompatActivity
 
     public static final String SHARED_PREFS = "nullworks.com.inked";
     public static final String ACCESS_TOKEN = "access_token";
-    public static final String USER_NAME = "username";
-    public static final String PROFILE_PIC_URL = "profile_picture";
-    public static final String FULL_NAME = "full_name";
+    public static final String INSTA_USER = "insta_user";
     public static final String USER_ID = "id";
 
     private NavigationView mNavigationView;
@@ -45,7 +50,10 @@ public class MainActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private MainPagerAdapter mPagerAdapter;
 
+    private DatabaseReference mRef;
+
     private String mAccessToken;
+    private String mUserId;
     private User mInstaUser;
 
     @Override
@@ -85,6 +93,14 @@ public class MainActivity extends AppCompatActivity
                 currentItem.setChecked(true);
             }
         });
+
+        mRef = FirebaseDatabase.getInstance().getReference();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mUserId = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(USER_ID, null);
     }
 
     @Override
@@ -97,6 +113,16 @@ public class MainActivity extends AppCompatActivity
 //            menu.getItem(2).setVisible(true);
 //
 //        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+                .edit()
+                .putString(ACCESS_TOKEN, mAccessToken)
+                .putString(USER_ID, mUserId)
+                .commit();
     }
 
     @Override
@@ -188,38 +214,29 @@ public class MainActivity extends AppCompatActivity
     public void onAccessTokenReceived(AccessToken accessToken) {
 
         mAccessToken = accessToken.getAccessToken();
-        mInstaUser = accessToken.getUser();
+        mUserId = accessToken.getUser().getId();
 
-        getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
-                .edit()
-                .putString(ACCESS_TOKEN, mAccessToken)
-                .putString(USER_ID, mInstaUser.getId())
-                .commit();
+        Intent intent = new Intent(MainActivity.this, ProfileActivity.class);
+        intent.putExtra(ACCESS_TOKEN, mAccessToken);
+        intent.putExtra(INSTA_USER, accessToken.getUser());
+        startActivity(intent);
 
-//        getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
-//                .edit()
-//                .putString(ACCESS_TOKEN, accessToken)
-//                .putString(USER_NAME, userName)
-//                .putString(PROFILE_PIC_URL, profilePicUrl)
-//                .putString(FULL_NAME, fullName)
-//                .putString(USER_ID, userId)
-//                .commit();
-
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                Menu menu = mNavigationView.getMenu();
-                menu.getItem(0).setVisible(false);
-                menu.getItem(1).setVisible(true);
-                menu.getItem(2).setVisible(true);
-
-                Glide.with(MainActivity.this)
-                        .load(mInstaUser.getProfilePicture())
-                        .fitCenter()
-                        .into(mNavImageView);
-                mNavFullNameTV.setText(mInstaUser.getFullName());
-                mNavUserNameTV.setText(mInstaUser.getUsername());
-            }
-        });
+//        // This is called from another thread, so the UI changes have to happen in runOnUiThread
+//        runOnUiThread(new Runnable() {
+//            @Override
+//            public void run() {
+//                Menu menu = mNavigationView.getMenu();
+//                menu.getItem(0).setVisible(false);
+//                menu.getItem(1).setVisible(true);
+//                menu.getItem(2).setVisible(true);
+//
+//                Glide.with(MainActivity.this)
+//                        .load(mInstaUser.getProfilePicture())
+//                        .fitCenter()
+//                        .into(mNavImageView);
+//                mNavFullNameTV.setText(mInstaUser.getFullName());
+//                mNavUserNameTV.setText(mInstaUser.getUsername());
+//            }
+//        });
     }
 }

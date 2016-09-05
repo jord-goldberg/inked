@@ -5,25 +5,36 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import nullworks.com.inked.ProfileActivity;
 import nullworks.com.inked.R;
-import nullworks.com.inked.adapters.MainRecyclerAdaper;
+import nullworks.com.inked.adapters.MediaRecyclerAdaper;
+import nullworks.com.inked.models.Datum;
 
 /**
  * Created by joshuagoldberg on 9/2/16.
  */
 public class RecyclerFragment extends Fragment {
 
+    private static final String TAG = "RecyclerFragment";
+
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager mLayoutManager;
-    private MainRecyclerAdaper mAdapter;
+    private MediaRecyclerAdaper mAdapter;
 
     private ArrayList<String> strings;
+    private static ArrayList<Datum> mData;
+
+    public static RecyclerFragment newInstance(ArrayList<Datum> data) {
+        mData = data;
+        return new RecyclerFragment();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,9 +71,10 @@ public class RecyclerFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View viewRoot = inflater.inflate(R.layout.fragment_recycler, container, false);
-        mRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.main_recycler);
+        mRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.recycler_media);
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mAdapter = new MainRecyclerAdaper(strings);
+        mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        mAdapter = new MediaRecyclerAdaper(mData);
         return viewRoot;
     }
 

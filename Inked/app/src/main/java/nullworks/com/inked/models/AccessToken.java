@@ -12,6 +12,15 @@ public class AccessToken {
     @Expose
     private User user;
 
+    public AccessToken() {
+
+    }
+
+    public AccessToken(String accessToken, User user) {
+        this.accessToken = accessToken;
+        this.user = user;
+    }
+
     /**
      * @return The accessToken
      */

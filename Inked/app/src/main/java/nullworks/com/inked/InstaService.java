@@ -1,10 +1,13 @@
 package nullworks.com.inked;
 
 import nullworks.com.inked.models.AccessToken;
+import nullworks.com.inked.models.Media;
 import retrofit2.Call;;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
+import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 /**
  * Created by joshuagoldberg on 9/1/16.
@@ -19,5 +22,11 @@ public interface InstaService {
                                      @Field("redirect_uri") String redirect_uri,
                                      @Field("grant_type") String grant_type,
                                      @Field("code") String code);
+
+    @GET("/v1/users/self/media/recent/")
+    Call<Media> getRecentMedia(@Query("access_token") String accessToken);
+
+    @GET("/v1/users/self/media/recent/")
+    Call<Media> getMoreMedia(@Query("access_token") String accessToken, @Query("max_id") String maxId);
 
 }
