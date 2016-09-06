@@ -12,11 +12,11 @@ import nullworks.com.inked.models.Datum;
 /**
  * Created by joshuagoldberg on 9/4/16.
  */
-public class ProfilePagerAdapter extends FragmentPagerAdapter {
+public class PortfolioPagerAdapter extends FragmentPagerAdapter {
 
     private ArrayList<Datum> mData;
 
-    public ProfilePagerAdapter(FragmentManager fm, ArrayList<Datum> data) {
+    public PortfolioPagerAdapter(FragmentManager fm, ArrayList<Datum> data) {
         super(fm);
         mData = data;
     }

@@ -1,20 +1,20 @@
 package nullworks.com.inked.fragments;
 
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
-import nullworks.com.inked.ProfileActivity;
 import nullworks.com.inked.R;
-import nullworks.com.inked.adapters.MediaRecyclerAdaper;
+import nullworks.com.inked.adapters.MainRecyclerAdaper;
+import nullworks.com.inked.adapters.PortfolioRecyclerAdapter;
 import nullworks.com.inked.models.Datum;
 
 /**
@@ -26,7 +26,7 @@ public class RecyclerFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager mLayoutManager;
-    private MediaRecyclerAdaper mAdapter;
+    private PortfolioRecyclerAdapter mAdapter;
 
     private ArrayList<String> strings;
     private static ArrayList<Datum> mData;
@@ -39,32 +39,6 @@ public class RecyclerFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        strings = new ArrayList<>();
-        strings.add("http://i.imgur.com/rFI2n7F.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/736x/3c/ba/a4/3cbaa48313203a3d1f894cbe33bc6191.jpg");
-        strings.add("http://media.tumblr.com/tumblr_m344o1hCLA1qm4rc3.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/564x/2f/d4/88/2fd4887b9c2e667acc349a35fb3a622c.jpg");
-        strings.add("https://www-media.fanlala.com/sites/default/files/content/03/25/14/justin-bieber-instagram-tattoo-2.png");
-        strings.add("http://www.galleryoftattoosnow.com/images/ckuploads/images/424658_3926264429080_520095477_n.jpg");
-        strings.add("http://i.imgur.com/rFI2n7F.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/736x/3c/ba/a4/3cbaa48313203a3d1f894cbe33bc6191.jpg");
-        strings.add("http://media.tumblr.com/tumblr_m344o1hCLA1qm4rc3.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/564x/2f/d4/88/2fd4887b9c2e667acc349a35fb3a622c.jpg");
-        strings.add("https://www-media.fanlala.com/sites/default/files/content/03/25/14/justin-bieber-instagram-tattoo-2.png");
-        strings.add("http://www.galleryoftattoosnow.com/images/ckuploads/images/424658_3926264429080_520095477_n.jpg");
-        strings.add("http://i.imgur.com/rFI2n7F.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/736x/3c/ba/a4/3cbaa48313203a3d1f894cbe33bc6191.jpg");
-        strings.add("http://media.tumblr.com/tumblr_m344o1hCLA1qm4rc3.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/564x/2f/d4/88/2fd4887b9c2e667acc349a35fb3a622c.jpg");
-        strings.add("https://www-media.fanlala.com/sites/default/files/content/03/25/14/justin-bieber-instagram-tattoo-2.png");
-        strings.add("http://www.galleryoftattoosnow.com/images/ckuploads/images/424658_3926264429080_520095477_n.jpg");
-        strings.add("http://i.imgur.com/rFI2n7F.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/736x/3c/ba/a4/3cbaa48313203a3d1f894cbe33bc6191.jpg");
-        strings.add("http://media.tumblr.com/tumblr_m344o1hCLA1qm4rc3.jpg");
-        strings.add("https://s-media-cache-ak0.pinimg.com/564x/2f/d4/88/2fd4887b9c2e667acc349a35fb3a622c.jpg");
-        strings.add("https://www-media.fanlala.com/sites/default/files/content/03/25/14/justin-bieber-instagram-tattoo-2.png");
-        strings.add("http://www.galleryoftattoosnow.com/images/ckuploads/images/424658_3926264429080_520095477_n.jpg");
     }
 
     @Nullable
@@ -72,9 +46,13 @@ public class RecyclerFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View viewRoot = inflater.inflate(R.layout.fragment_recycler, container, false);
         mRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.recycler_media);
-        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        } else {
+            mLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
+        }
         mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        mAdapter = new MediaRecyclerAdaper(mData);
+        mAdapter = new PortfolioRecyclerAdapter(mData);
         return viewRoot;
     }
 

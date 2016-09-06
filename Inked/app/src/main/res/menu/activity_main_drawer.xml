@@ -4,19 +4,14 @@
     <item
         android:id="@+id/nav_login"
         android:icon="@drawable/ic_menu_login"
-        android:title="Login with Instagram" />
+        android:title="@string/action_login_with_google"/>
     <item
-        android:id="@+id/nav_account"
-        android:icon="@drawable/ic_menu_account"
-        android:title="Manage Account"
-        android:visible="false"/>
-    <item
-        android:id="@+id/nav_gallery"
-        android:icon="@drawable/ic_menu_gallery"
-        android:title="Shared Photos"
+        android:id="@+id/nav_portfolio"
+        android:icon="@drawable/ic_menu_portfolio"
+        android:title="Inked Portfolio"
         android:visible="false"/>
 
-    <item android:title="Search by Category">
+    <item android:title="Tattoos by Category">
         <menu>
             <group android:checkableBehavior="single">
                 <item
@@ -49,11 +44,4 @@
             </group>
         </menu>
     </item>
-
-    <item
-        android:id="@+id/nav_logout"
-        android:icon="@drawable/ic_menu_account"
-        android:title="Logout"
-        android:visible="true"/>
-
 </menu>
