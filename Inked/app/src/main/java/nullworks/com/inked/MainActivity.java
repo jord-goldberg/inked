@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.design.widget.NavigationView;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity
     private TextView mEmailAddress;
 
     private ViewPager mViewPager;
+    private TabLayout mTabLayout;
     private MainPagerAdapter mPagerAdapter;
 
     private FirebaseAuth mAuth;
@@ -73,8 +75,11 @@ public class MainActivity extends AppCompatActivity
         mCategorySubMenu.getItem(0).setChecked(true);
 
         mViewPager = (ViewPager) findViewById(R.id.main_container);
+        mTabLayout = (TabLayout) findViewById(R.id.tabs);
+        mTabLayout.setupWithViewPager(mViewPager, true);
         mPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), mCategorySubMenu);
         mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setPageTransformer(true, new DepthPageTransformer());
         // Add a listener to check Navigation Drawer items as we scroll through them
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
             MenuItem currentItem = mCategorySubMenu.getItem(mViewPager.getCurrentItem());

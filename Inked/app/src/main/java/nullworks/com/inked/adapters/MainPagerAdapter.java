@@ -32,5 +32,8 @@ public class MainPagerAdapter extends FragmentStatePagerAdapter {
         return mCategoryMenu.size();
     }
 
-
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mCategoryMenu.getItem(position).getTitle();
+    }
 }
