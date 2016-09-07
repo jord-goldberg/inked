@@ -25,9 +25,6 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class LoginDialogFragment extends DialogFragment {
 
     private static final String TAG = "LoginDialogFragment";
-    private static final String CLIENT_ID = "clientId";
-    private static final String CLIENT_SECRET = "clientSecret";
-    private static final String REDIRECT_URI = "redirectUri";
 
     private String mClientId;
     private String mClientSecret;
@@ -38,31 +35,21 @@ public class LoginDialogFragment extends DialogFragment {
 
     private AccessTokenReceived mAccessTokenReceived;
 
-    public static LoginDialogFragment newInstance(String clientId, String clientSecret, String redirectUri) {
-        LoginDialogFragment fragment = new LoginDialogFragment();
-        Bundle args = new Bundle();
-        args.putString(CLIENT_ID, clientId);
-        args.putString(CLIENT_SECRET, clientSecret);
-        args.putString(REDIRECT_URI, redirectUri);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAccessTokenReceived = (AccessTokenReceived) getContext();
-        if (getArguments() != null) {
-            mClientId = getArguments().getString(CLIENT_ID);
-            mClientSecret = getArguments().getString(CLIENT_SECRET);
-            mRedirectUri = getArguments().getString(REDIRECT_URI);
 
-            mAuthorizationUrl = new StringBuilder("https://api.instagram.com/oauth/authorize/")
-                    .append("?client_id=").append(mClientId)
-                    .append("&redirect_uri=").append(mRedirectUri)
-                    .append("&response_type=code")
-                    .toString();
-        }
+        mClientId = getString(R.string.insta_client_id);
+        mClientSecret = getString(R.string.insta_client_secret);
+        mRedirectUri = getString(R.string.insta_redirect_uri);
+
+        mAuthorizationUrl = new StringBuilder("https://api.instagram.com/oauth/authorize/")
+                .append("?client_id=").append(mClientId)
+                .append("&redirect_uri=").append(mRedirectUri)
+                .append("&response_type=code")
+                .toString();
+
     }
 
     @Nullable
@@ -70,7 +57,6 @@ public class LoginDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View viewRoot = inflater.inflate(R.layout.fragment_dialog_login, container, false);
         mWebView = (WebView) viewRoot.findViewById(R.id.login_webview);
-        Log.d(TAG, "onCreateView: " + mAuthorizationUrl);
         return viewRoot;
     }
 
@@ -80,16 +66,15 @@ public class LoginDialogFragment extends DialogFragment {
         mWebView.setWebViewClient(new WebViewClient() {
             @Override
             public boolean shouldOverrideUrlLoading(WebView view, String url) {
-                if(url.contains("code=")){ //CHECKING TO SEE IF THE URL WE HAVE IS THE ONE WE WANT
+                if (url.contains("code=")) { //CHECKING TO SEE IF THE URL WE HAVE IS THE ONE WE WANT
 
                     int index = url.indexOf("=");
 
                     //STRIPPING AWAY THE URL AND ONLY KEEPING THE "CODE"
-                    String code = url.substring(index+1);
+                    String code = url.substring(index + 1);
                     getAccessToken(code);
                     return true;
-                }
-                else {
+                } else {
                     return false;
                 }
             }
@@ -97,7 +82,7 @@ public class LoginDialogFragment extends DialogFragment {
         mWebView.loadUrl(mAuthorizationUrl);
     }
 
-    private void getAccessToken(String code){
+    private void getAccessToken(String code) {
 
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(InstaService.BASE_URL)
@@ -106,8 +91,12 @@ public class LoginDialogFragment extends DialogFragment {
 
         InstaService service = retrofit.create(InstaService.class);
 
-        Call<AccessToken> call = service.getAccessToken(mClientId, mClientSecret, mRedirectUri,
-                "authorization_code", code);
+        Call<AccessToken> call = service.getAccessToken(
+                mClientId,
+                mClientSecret,
+                mRedirectUri,
+                "authorization_code",
+                code);
 
         call.enqueue(new Callback<AccessToken>() {
             @Override

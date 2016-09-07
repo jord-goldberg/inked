@@ -215,14 +215,14 @@ public class MainActivity extends AppCompatActivity
 
     public void checkForAuthorizedUser() {
         if (mAuth.getCurrentUser() != null) { // User is signed in
-            // Show profile option in Nav Drawer
+            // Show portfolio option in Nav Drawer
             mNavigationView.getMenu().getItem(0).setVisible(false);
             mNavigationView.getMenu().getItem(1).setVisible(true);
             // Make Nav header views visible
             mProfilePic.setVisibility(View.VISIBLE);
             mDisplayName.setVisibility(View.VISIBLE);
             mEmailAddress.setVisibility(View.VISIBLE);
-            // Get user data from mAuth
+            // Display user data from mAuth
             Glide.with(this)
                     .load(mAuth.getCurrentUser().getPhotoUrl())
                     .dontTransform()
