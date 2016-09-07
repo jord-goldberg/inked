@@ -2,6 +2,7 @@ package nullworks.com.inked;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -12,6 +13,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
@@ -27,7 +29,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
-import nullworks.com.inked.adapters.PortfolioRecyclerAdapter;
+import nullworks.com.inked.adapters.InstaRecyclerAdapter;
 import nullworks.com.inked.fragments.LoginDialogFragment;
 import nullworks.com.inked.models.AccessToken;
 import nullworks.com.inked.models.Datum;
@@ -41,7 +43,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PortfolioActivity extends AppCompatActivity
         implements LoginDialogFragment.AccessTokenReceived,
-        PortfolioRecyclerAdapter.NewMediaClicked,
+        InstaRecyclerAdapter.NewMediaClicked,
         View.OnClickListener {
 
     private static final String TAG = "PortfolioActivity";
@@ -55,9 +57,12 @@ public class PortfolioActivity extends AppCompatActivity
     private String mRedirectUri;
 
     private ImageView mProfilePic;
-    private CardView mInstaLogin;
+    private TextView mFullNameView;
+    private CardView mInstaLoginView;
+    private CardView mLocationView;
 
     private ViewPager mViewPager;
+    private TabLayout mTabLayout;
     private PortfolioPagerAdapter mPagerAdapter;
 
     private FirebaseAuth mAuth;
@@ -65,6 +70,7 @@ public class PortfolioActivity extends AppCompatActivity
 
     private String mUserId;
     private User mUser;
+    private String mProfile;
 
     private ArrayList<Datum> mData;
     private ArrayList<Datum> mNewMedia;
@@ -72,7 +78,7 @@ public class PortfolioActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+        setContentView(R.layout.activity_portfolio);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -81,69 +87,39 @@ public class PortfolioActivity extends AppCompatActivity
         mNewMedia = new ArrayList<>();
 
         mProfilePic = (ImageView) findViewById(R.id.profile_picture);
-        mInstaLogin = (CardView) findViewById(R.id.insta_login_card);
+        mInstaLoginView = (CardView) findViewById(R.id.insta_login_card);
+        mFullNameView = (TextView) findViewById(R.id.fullname_textview);
+        mLocationView = (CardView) findViewById(R.id.user_location_card);
         mViewPager = (ViewPager) findViewById(R.id.profile_container);
+        mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        mAuth = FirebaseAuth.getInstance();
         mRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        mUserId = mAuth.getCurrentUser().getUid();
+
+        mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
 
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        mTabLayout.setupWithViewPager(mViewPager, true);
+        getUserInfo(mUserId);
 
-        mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
-
-        if (mAccessToken == null) { // User must log in to instagram to share anything
-            mInstaLogin.setVisibility(View.VISIBLE);
-            mInstaLogin.setOnClickListener(this);
-            // Get the instagram Data to pass into the login dialog
-            mRef.child("instagramData").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
-                    Log.d(TAG, "onDataChange: ");
-                    mClientId = dataSnapshot.child("clientId").getValue(String.class);
-                    mClientSecret = dataSnapshot.child("clientSecret").getValue(String.class);
-                    mRedirectUri = dataSnapshot.child("redirectUri").getValue(String.class);
-                }
-                @Override
-                public void onCancelled(DatabaseError databaseError) {
-
-                }
-            });
+        // Check to see if user has Instagram access token
+        if (mAccessToken == null) { // User must log in to get token; adjust views
+            mLocationView.setVisibility(View.GONE);
+            mInstaLoginView.setOnClickListener(this);
+            getInstagramData(mRef.child("instagramData"));
+        } else { // User is already logged into instagram; remove login view
+            mInstaLoginView.setVisibility(View.GONE);
         }
-
-        mUserId = mAuth.getCurrentUser().getUid();
-        mRef.child("users").child(mUserId).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mUser = dataSnapshot.getValue(User.class);
-                if (mUser != null) { // User has already stored info on our database; retrieve it
-                    getSupportActionBar().setTitle(mUser.getFullName());
-                    Glide.with(PortfolioActivity.this)
-                            .load(mUser.getProfilePicture().replace("s150x150", ""))
-                            .fitCenter()
-                            .into(mProfilePic);
-                } else {
-                    Log.d(TAG, "onDataChange: null");
-                    Glide.with(PortfolioActivity.this)
-                            .load(R.drawable.ic_profile_placeholder)
-                            .into(mProfilePic);
-                }
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.d(TAG, "onCancelled: " + databaseError.getMessage());
-            }
-        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: ");
 
         if (mAccessToken != null) {
             Retrofit retrofit = new Retrofit.Builder()
@@ -181,6 +157,7 @@ public class PortfolioActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
+        // Store access token
         getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
                 .edit()
                 .putString(ACCESS_TOKEN, mAccessToken)
@@ -188,7 +165,8 @@ public class PortfolioActivity extends AppCompatActivity
         // Check to see if the user is signed in; this may be after a sign-out
         if (mAuth.getCurrentUser() != null  && mUser != null) {
             // TODO: Make this happen after the user agrees to save changes
-            mRef.child("users").child(mUserId).setValue(mUser);
+            mRef.child("users").child(mUserId).child("user").setValue(mUser);
+            mRef.child("users").child(mUserId).child("profile").setValue(mProfile);
             for (int i = 0; i < mNewMedia.size(); i++)
                 mRef.child("media").child(mNewMedia.get(i).getId()).setValue(mNewMedia.get(i));
         }
@@ -196,7 +174,7 @@ public class PortfolioActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.profile, menu);
+        getMenuInflater().inflate(R.menu.portfolio, menu);
         return true;
     }
 
@@ -216,7 +194,6 @@ public class PortfolioActivity extends AppCompatActivity
                 onNavigateUp();
                 return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -250,5 +227,45 @@ public class PortfolioActivity extends AppCompatActivity
                 //TODO: Add ability to log out of Instagram with warning that all pictures will be unshared.
                 break;
         }
+    }
+
+    public void getInstagramData(DatabaseReference ref) {
+        // Set one time listener to get the Instagram data for the login dialog
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mClientId = dataSnapshot.child("clientId").getValue(String.class);
+                mClientSecret = dataSnapshot.child("clientSecret").getValue(String.class);
+                mRedirectUri = dataSnapshot.child("redirectUri").getValue(String.class);
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
+            }
+        });
+    }
+
+    public void getUserInfo(String userId) {
+        // Set listener to get user info from firebase
+        mRef.child("users").child(userId).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mUser = dataSnapshot.child("user").getValue(User.class);
+                mProfile = dataSnapshot.child("profile").getValue(String.class);
+                if (mUser != null) { // User has already stored info on our database; display it
+                    mFullNameView.setText(mUser.getFullName());
+                    Glide.with(PortfolioActivity.this)
+                            .load(mUser.getProfilePicture().replace("s150x150", ""))
+                            .fitCenter()
+                            .into(mProfilePic);
+                } else { // New user; do some other stuff
+                    mFullNameView.setText(mAuth.getCurrentUser().getDisplayName());
+                }
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
+            }
+        });
     }
 }

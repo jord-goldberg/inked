@@ -27,6 +27,7 @@ public interface InstaService {
     Call<Media> getRecentMedia(@Query("access_token") String accessToken);
 
     @GET("/v1/users/self/media/recent/")
-    Call<Media> getMoreMedia(@Query("access_token") String accessToken, @Query("max_id") String maxId);
+    Call<Media> getMoreMedia(@Query("access_token") String accessToken,
+                             @Query("max_id") String maxId);
 
 }

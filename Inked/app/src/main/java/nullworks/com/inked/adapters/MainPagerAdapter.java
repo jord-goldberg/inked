@@ -7,7 +7,7 @@ import android.view.Menu;
 
 import java.util.ArrayList;
 
-import nullworks.com.inked.fragments.RecyclerFragment;
+import nullworks.com.inked.fragments.FbRecyclerFragment;
 import nullworks.com.inked.models.Datum;
 
 /**
@@ -24,7 +24,7 @@ public class MainPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        return RecyclerFragment.newInstance(new ArrayList<Datum>());
+        return FbRecyclerFragment.newInstance();
     }
 
     @Override

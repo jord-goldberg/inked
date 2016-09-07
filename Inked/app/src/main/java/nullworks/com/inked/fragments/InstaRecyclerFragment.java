@@ -13,27 +13,25 @@ import android.view.ViewGroup;
 import java.util.ArrayList;
 
 import nullworks.com.inked.R;
-import nullworks.com.inked.adapters.MainRecyclerAdaper;
-import nullworks.com.inked.adapters.PortfolioRecyclerAdapter;
+import nullworks.com.inked.adapters.InstaRecyclerAdapter;
 import nullworks.com.inked.models.Datum;
 
 /**
- * Created by joshuagoldberg on 9/2/16.
+ * Created by joshuagoldberg on 9/6/16.
  */
-public class RecyclerFragment extends Fragment {
+public class InstaRecyclerFragment extends Fragment {
 
-    private static final String TAG = "RecyclerFragment";
+    private static final String TAG = "InstaRecyclerFragment";
 
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager mLayoutManager;
-    private PortfolioRecyclerAdapter mAdapter;
+    private InstaRecyclerAdapter mAdapter;
 
-    private ArrayList<String> strings;
     private static ArrayList<Datum> mData;
 
-    public static RecyclerFragment newInstance(ArrayList<Datum> data) {
+    public static InstaRecyclerFragment newInstance(ArrayList<Datum> data) {
         mData = data;
-        return new RecyclerFragment();
+        return new InstaRecyclerFragment();
     }
 
     @Override
@@ -52,7 +50,7 @@ public class RecyclerFragment extends Fragment {
             mLayoutManager = new StaggeredGridLayoutManager(3, StaggeredGridLayoutManager.VERTICAL);
         }
         mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        mAdapter = new PortfolioRecyclerAdapter(mData);
+        mAdapter = new InstaRecyclerAdapter(mData);
         return viewRoot;
     }
 

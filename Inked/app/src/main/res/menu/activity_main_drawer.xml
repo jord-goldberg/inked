@@ -11,7 +11,7 @@
         android:title="Inked Portfolio"
         android:visible="false"/>
 
-    <item android:title="Tattoos by Category">
+    <item android:title="Ink by Category">
         <menu>
             <group android:checkableBehavior="single">
                 <item

@@ -4,9 +4,7 @@ package nullworks.com.inked.models;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
-
-public class User implements Serializable {
+public class User {
 
     @SerializedName("username")
     @Expose
@@ -20,9 +18,6 @@ public class User implements Serializable {
     @SerializedName("profile_picture")
     @Expose
     private String profilePicture;
-    @SerializedName("custom_profile_picture")
-    @Expose
-    private String customProfilePicture;
     @SerializedName("full_name")
     @Expose
     private String fullName;
@@ -34,12 +29,11 @@ public class User implements Serializable {
 
     }
 
-    public User(String bio, String fullName, String id, String profilePicture, String customProfilePicture, String username, String website) {
+    public User(String bio, String fullName, String id, String profilePicture, String username, String website) {
         this.bio = bio;
         this.fullName = fullName;
         this.id = id;
         this.profilePicture = profilePicture;
-        this.customProfilePicture = customProfilePicture;
         this.username = username;
         this.website = website;
     }
@@ -114,24 +108,6 @@ public class User implements Serializable {
      */
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
-    }
-
-    /**
-     *
-     * @return
-     * The customProfilePicture
-     */
-    public String getCustomProfilePicture() {
-        return customProfilePicture;
-    }
-
-    /**
-     *
-     * @param customProfilePicture
-     * The custom_profile_picture
-     */
-    public void setCustomProfilePicture(String customProfilePicture) {
-        this.customProfilePicture = customProfilePicture;
     }
 
     /**

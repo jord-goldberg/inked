@@ -36,9 +36,6 @@ public class MainActivity extends AppCompatActivity
 
     public static final int GOOGLE_SIGN_IN = 200;
 
-    public static final String INSTA_USER = "insta_user";
-    public static final String USER_ID = "id";
-
     private NavigationView mNavigationView;
     private Menu mCategorySubMenu;
     private ImageView mProfilePic;
@@ -50,9 +47,6 @@ public class MainActivity extends AppCompatActivity
 
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
-
-    private String mAccessToken;
-    private String mUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,32 +94,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-
-        if (mAuth.getCurrentUser() != null) { // User is signed in
-            // Show profile option in Nav Drawer
-            mNavigationView.getMenu().getItem(0).setVisible(false);
-            mNavigationView.getMenu().getItem(1).setVisible(true);
-            // Make Nav header views visible
-            mProfilePic.setVisibility(View.VISIBLE);
-            mDisplayName.setVisibility(View.VISIBLE);
-            mEmailAddress.setVisibility(View.VISIBLE);
-            // Get user data from mAuth
-            Glide.with(this)
-                    .load(mAuth.getCurrentUser().getPhotoUrl())
-                    .dontTransform()
-                    .into(mProfilePic);
-            mDisplayName.setText(mAuth.getCurrentUser().getDisplayName());
-            mEmailAddress.setText(mAuth.getCurrentUser().getEmail());
-
-        } else { // User is not signed in
-            // Show sign in option in Nav Drawer
-            mNavigationView.getMenu().getItem(0).setVisible(true);
-            mNavigationView.getMenu().getItem(1).setVisible(false);
-            // Make Nav header views gone
-            mProfilePic.setVisibility(View.GONE);
-            mDisplayName.setVisibility(View.GONE);
-            mEmailAddress.setVisibility(View.GONE);
-        }
+        checkForAuthorizedUser();
     }
 
     @Override
@@ -236,6 +205,34 @@ public class MainActivity extends AppCompatActivity
                 //TODO: Make this Snackbar work instead of the above Toast
                 Snackbar.make(mViewPager, "Sign in failed", Snackbar.LENGTH_SHORT);
             }
+        }
+    }
+
+    public void checkForAuthorizedUser() {
+        if (mAuth.getCurrentUser() != null) { // User is signed in
+            // Show profile option in Nav Drawer
+            mNavigationView.getMenu().getItem(0).setVisible(false);
+            mNavigationView.getMenu().getItem(1).setVisible(true);
+            // Make Nav header views visible
+            mProfilePic.setVisibility(View.VISIBLE);
+            mDisplayName.setVisibility(View.VISIBLE);
+            mEmailAddress.setVisibility(View.VISIBLE);
+            // Get user data from mAuth
+            Glide.with(this)
+                    .load(mAuth.getCurrentUser().getPhotoUrl())
+                    .dontTransform()
+                    .into(mProfilePic);
+            mDisplayName.setText(mAuth.getCurrentUser().getDisplayName());
+            mEmailAddress.setText(mAuth.getCurrentUser().getEmail());
+
+        } else { // User is not signed in
+            // Show sign in option in Nav Drawer
+            mNavigationView.getMenu().getItem(0).setVisible(true);
+            mNavigationView.getMenu().getItem(1).setVisible(false);
+            // Make Nav header views gone
+            mProfilePic.setVisibility(View.GONE);
+            mDisplayName.setVisibility(View.GONE);
+            mEmailAddress.setVisibility(View.GONE);
         }
     }
 }
