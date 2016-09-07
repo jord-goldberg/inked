@@ -5,7 +5,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.Menu;
 
-import nullworks.com.inked.fragments.RecyclerFragment;
+import java.util.ArrayList;
+
+import nullworks.com.inked.fragments.FbRecyclerFragment;
+import nullworks.com.inked.models.Datum;
 
 /**
  * Created by joshuagoldberg on 9/2/16.
@@ -21,16 +24,7 @@ public class MainPagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-//        mCategoryMenu.getItem(position).setChecked(true);
-//        if (position-1 < 0) {
-//            mCategoryMenu.getItem(position+1).setChecked(false);
-//        } else if (position+1 == mCategoryMenu.size()) {
-//            mCategoryMenu.getItem(position-1).setChecked(false);
-//        } else {
-//            mCategoryMenu.getItem(position+1).setChecked(false);
-//            mCategoryMenu.getItem(position-1).setChecked(false);
-//        }
-        return new RecyclerFragment();
+        return FbRecyclerFragment.newInstance();
     }
 
     @Override
@@ -38,5 +32,8 @@ public class MainPagerAdapter extends FragmentStatePagerAdapter {
         return mCategoryMenu.size();
     }
 
-
+    @Override
+    public CharSequence getPageTitle(int position) {
+        return mCategoryMenu.getItem(position).getTitle();
+    }
 }

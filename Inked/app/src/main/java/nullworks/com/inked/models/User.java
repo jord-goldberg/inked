@@ -25,6 +25,19 @@ public class User {
     @Expose
     private String id;
 
+    public User() {
+
+    }
+
+    public User(String bio, String fullName, String id, String profilePicture, String username, String website) {
+        this.bio = bio;
+        this.fullName = fullName;
+        this.id = id;
+        this.profilePicture = profilePicture;
+        this.username = username;
+        this.website = website;
+    }
+
     /**
      *
      * @return
