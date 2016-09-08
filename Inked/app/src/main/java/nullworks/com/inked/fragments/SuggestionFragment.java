@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import nullworks.com.inked.R;
+import nullworks.com.inked.adapters.PortfolioPagerAdapter;
 
 /**
  * Created by joshuagoldberg on 9/7/16.
@@ -19,8 +20,9 @@ import nullworks.com.inked.R;
 public class SuggestionFragment extends Fragment implements View.OnClickListener {
 
     private static final String TAG = "SuggestionFragment";
-
     private static final String USER_FLAG = "userFlag";
+
+    public static final String FRAGMENT_TITLE = "suggestion";
 
     private int mUserFlag;
 
@@ -37,6 +39,7 @@ public class SuggestionFragment extends Fragment implements View.OnClickListener
     public static SuggestionFragment newInstance(int userFlag) {
         SuggestionFragment fragment = new SuggestionFragment();
         Bundle args =  new Bundle();
+        args.putString(PortfolioPagerAdapter.FRAGMENT_TITLE, FRAGMENT_TITLE);
         args.putInt(USER_FLAG, userFlag);
         fragment.setArguments(args);
         return fragment;
@@ -55,7 +58,7 @@ public class SuggestionFragment extends Fragment implements View.OnClickListener
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View viewRoot = inflater.inflate(R.layout.fragment_suggestion, container, false);
 
-        // Check to see if the user is connected to Instagram
+        // Check to see if the user is connected with Instagram
         if (mUserFlag == 0 || mUserFlag == 5 || mUserFlag == 7 || mUserFlag == 12) { // not connected
             mInstaLoginLayout = (LinearLayout) viewRoot.findViewById(R.id.inst_login_layout);
             mInstaLoginButton = (CardView) viewRoot.findViewById(R.id.insta_login_button);
@@ -77,7 +80,7 @@ public class SuggestionFragment extends Fragment implements View.OnClickListener
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Check to see if the user is connected to Instagram
+        // Check to see if the user is connected with Instagram
         if (mUserFlag == 0 || mUserFlag == 5 || mUserFlag == 7 || mUserFlag == 12) { // not connected
             mInstaLoginLayout.setVisibility(View.VISIBLE);
             mInstaLoginButton.setOnClickListener(this);

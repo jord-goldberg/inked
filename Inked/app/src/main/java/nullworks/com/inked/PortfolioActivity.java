@@ -252,12 +252,7 @@ public class PortfolioActivity extends AppCompatActivity
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mUser = dataSnapshot.getValue(InkedUser.class);
                 if (mUser == null) {
-                    mUser = new InkedUser(
-                            new Location(),
-                            null,
-                            new ArrayList<Datum>(),
-                            new ArrayList<Datum>(),
-                            new User());
+                    mUser = new InkedUser(new User(), new Location(), null, null, null);
                 }
                 if (mUser.getLocation() == null) {
                     mUser.setLocation(new Location());
@@ -285,16 +280,18 @@ public class PortfolioActivity extends AppCompatActivity
         if (user.getProfile() != null)
             userFlag += 7;
 
-        Log.d(TAG, "setLayout: userFlag - " + userFlag);
+        Log.d(TAG, "setLayout: userFlag: " + userFlag);
 
         // Check to see if the user is connected with instagram
         if (userFlag == 0 || userFlag == 5 || userFlag == 7 || userFlag == 12) { // not connected
             Log.d(TAG, "setLayout: " + mAuth.getCurrentUser().getPhotoUrl());
             mFullNameText.setText(mAuth.getCurrentUser().getDisplayName());
+            //TODO: GET A DEFAULT USER PHOTO FOR EVERYONE TO SEE
             Glide.with(PortfolioActivity.this)
                     .load(mAuth.getCurrentUser().getPhotoUrl())
                     .fitCenter()
                     .into(mProfilePic);
+            //TODO: GET A DEFAULT USER PHOTO FOR EVERYONE TO SEE
         } else { // connected
             mFullNameText.setText(mUser.getUser().getFullName());
             Glide.with(PortfolioActivity.this)
@@ -313,10 +310,13 @@ public class PortfolioActivity extends AppCompatActivity
             mLocationText.setText(mUser.getLocation().getAddress());
         }
 
-
-        mPagerAdapter = new PortfolioPagerAdapter(getSupportFragmentManager(), userFlag);
+        mPagerAdapter = new PortfolioPagerAdapter(getSupportFragmentManager(), mUser, userFlag);
         mViewPager.setAdapter(mPagerAdapter);
+        mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
         mTabLayout.setupWithViewPager(mViewPager, true);
+        if (userFlag == 0) {
+            mTabLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override

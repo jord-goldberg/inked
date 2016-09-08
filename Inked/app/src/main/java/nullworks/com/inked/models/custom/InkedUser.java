@@ -4,6 +4,7 @@ import com.google.android.gms.location.places.Place;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import nullworks.com.inked.models.Datum;
@@ -12,7 +13,7 @@ import nullworks.com.inked.models.User;
 /**
  * Created by joshuagoldberg on 9/7/16.
  */
-public class InkedUser {
+public class InkedUser implements Serializable {
 
     @SerializedName("user")
     @Expose
@@ -33,7 +34,7 @@ public class InkedUser {
     public InkedUser() {
     }
 
-    public InkedUser(Location location, String profile, ArrayList<Datum> sharedMedia, ArrayList<Datum> unsharedMedia, User user) {
+    public InkedUser(User user, Location location, String profile, ArrayList<Datum> sharedMedia, ArrayList<Datum> unsharedMedia) {
         this.location = location;
         this.profile = profile;
         this.sharedMedia = sharedMedia;
