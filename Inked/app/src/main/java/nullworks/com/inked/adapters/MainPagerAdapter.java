@@ -5,10 +5,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.view.Menu;
 
-import java.util.ArrayList;
-
 import nullworks.com.inked.fragments.FbRecyclerFragment;
-import nullworks.com.inked.models.Datum;
+import nullworks.com.inked.fragments.InstaRecyclerFragment;
+import nullworks.com.inked.fragments.SuggestionFragment;
+import nullworks.com.inked.fragments.UnsharedFragment;
 
 /**
  * Created by joshuagoldberg on 9/2/16.

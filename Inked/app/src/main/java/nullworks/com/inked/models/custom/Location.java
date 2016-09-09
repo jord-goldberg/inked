@@ -3,12 +3,14 @@ package nullworks.com.inked.models.custom;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 import nullworks.com.inked.models.User;
 
 /**
  * Created by joshuagoldberg on 9/7/16.
  */
-public class Location {
+public class Location implements Serializable {
 
     @SerializedName("name")
     @Expose

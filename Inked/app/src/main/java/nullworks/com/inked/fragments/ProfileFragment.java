@@ -10,7 +10,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import nullworks.com.inked.R;
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
@@ -19,7 +24,7 @@ import nullworks.com.inked.models.custom.InkedUser;
 /**
  * Created by joshuagoldberg on 9/7/16.
  */
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String TAG = "LocationFragment";
     private static final String USER_FLAG = "userFlag";
@@ -37,7 +42,8 @@ public class ProfileFragment extends Fragment {
     TextView mInstaUserNameText;
     TextView mProfileText;
 
-    MapView mMap;
+    GoogleMap mMap;
+    SupportMapFragment mMapFragment;
 
     private OnFragmentInteractionListener mListener;
 
@@ -72,7 +78,7 @@ public class ProfileFragment extends Fragment {
         }
         // Check to see if the user has a set location
         if (mUserFlag == 5 || mUserFlag == 8 || mUserFlag == 12 || mUserFlag == 15) { // has location
-            mMap = (MapView) viewRoot.findViewById(R.id.map);
+            mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         }
         // Check to see if the user has a custom profile
         if (mUserFlag == 7 || mUserFlag == 10 || mUserFlag == 12 || mUserFlag == 15) { // has profile
@@ -92,7 +98,7 @@ public class ProfileFragment extends Fragment {
         }
         // Check to see if the user has a set location
         if (mUserFlag == 5 || mUserFlag == 8 || mUserFlag == 12 || mUserFlag == 15) { // has location
-
+            mMapFragment.getMapAsync(this);
         }
         // Check to see if the user has a custom profile
         if (mUserFlag == 7 || mUserFlag == 10 || mUserFlag == 12 || mUserFlag == 15) { // has profile
@@ -121,6 +127,16 @@ public class ProfileFragment extends Fragment {
         if (mListener != null) {
             mListener.onFragmentInteraction();
         }
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        double lat = mUser.getLocation().getLatitude();
+        double lng = mUser.getLocation().getLongitude();
+        LatLng userLocation = new LatLng(lat, lng);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(userLocation));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
     }
 
     public interface OnFragmentInteractionListener {

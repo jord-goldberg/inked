@@ -44,15 +44,9 @@ import nullworks.com.inked.fragments.LoginDialogFragment;
 import nullworks.com.inked.fragments.SuggestionFragment;
 import nullworks.com.inked.models.AccessToken;
 import nullworks.com.inked.models.Datum;
-import nullworks.com.inked.models.Media;
 import nullworks.com.inked.models.User;
 import nullworks.com.inked.models.custom.InkedUser;
 import nullworks.com.inked.models.custom.Location;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PortfolioActivity extends AppCompatActivity
         implements LoginDialogFragment.AccessTokenReceived,
@@ -107,8 +101,6 @@ public class PortfolioActivity extends AppCompatActivity
         mViewPager = (ViewPager) findViewById(R.id.profile_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
-
         mRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mUserId = mAuth.getCurrentUser().getUid();
@@ -119,6 +111,7 @@ public class PortfolioActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
         setUserInfo();
     }
 
@@ -126,35 +119,6 @@ public class PortfolioActivity extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        if (mAccessToken != null) {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(InstaService.BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
-                    .build();
-
-            InstaService service = retrofit.create(InstaService.class);
-
-            Call<Media> call = service.getRecentMedia(mAccessToken);
-
-            call.enqueue(new Callback<Media>() {
-                @Override
-                public void onResponse(Call<Media> call, Response<Media> response) {
-                    try {
-                        for (int i = 0; i < response.body().getData().size(); i++) {
-                            if (response.body().getData().get(i).getType().equals("image")) {
-                                mData.add(response.body().getData().get(i));
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                @Override
-                public void onFailure(Call<Media> call, Throwable t) {
-                    Log.d(TAG, "onFailure: ", t);
-                }
-            });
-        }
     }
 
     @Override
@@ -228,18 +192,17 @@ public class PortfolioActivity extends AppCompatActivity
 
     @Override
     public void onNewMediaClicked(Datum datum) {
-        if (!mNewMedia.contains(datum))
+        if (!mNewMedia.contains(datum)) {
             mNewMedia.add(datum);
-        else
+        } else {
             mNewMedia.remove(datum);
-
+        }
     }
 
     private synchronized void buildGoogleApiClient() {
-        PlacesHelper helper = new PlacesHelper();
+        PlacesHelper helper = new PlacesHelper(mGoogleApiClient);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(helper)
-                .addOnConnectionFailedListener(helper)
                 .addApi(Places.GEO_DATA_API)
                 .enableAutoManage(this, helper)
                 .build();
@@ -262,6 +225,7 @@ public class PortfolioActivity extends AppCompatActivity
                 }
                 setLayout(mUser);
             }
+
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
@@ -357,13 +321,15 @@ public class PortfolioActivity extends AppCompatActivity
                 .build();
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
-                            .setFilter(typeFilter)
-                            .build(this);
+                    .setFilter(typeFilter)
+                    .build(this);
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
         } catch (GooglePlayServicesRepairableException e) {
             // TODO: Handle the error.
+            Log.e(TAG, "placesAutoComplete: ", e);
         } catch (GooglePlayServicesNotAvailableException e) {
             // TODO: Handle the error.
+            Log.e(TAG, "placesAutoComplete: ", e);
         }
     }
 }

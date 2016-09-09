@@ -23,6 +23,10 @@ public class MediaViewHolder extends RecyclerView.ViewHolder {
         itemView.setOnClickListener(onClickListener);
     }
 
+    public void setOnLongClickListener(View.OnLongClickListener onLongClickListener){
+        itemView.setOnLongClickListener(onLongClickListener);
+    }
+
     public ImageView getMainImage() {
         return mMainImage;
     }

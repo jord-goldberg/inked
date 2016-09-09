@@ -2,17 +2,19 @@ package nullworks.com.inked.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 
 import nullworks.com.inked.R;
+import nullworks.com.inked.fragments.FbRecyclerFragment;
 import nullworks.com.inked.fragments.ProfileFragment;
 import nullworks.com.inked.fragments.SuggestionFragment;
+import nullworks.com.inked.fragments.UnsharedFragment;
 import nullworks.com.inked.models.custom.InkedUser;
 
 /**
  * Created by joshuagoldberg on 9/4/16.
  */
-public class PortfolioPagerAdapter extends FragmentPagerAdapter {
+public class PortfolioPagerAdapter extends FragmentStatePagerAdapter {
 
     private static final String TAG = "PortfolioPagerAdapter";
     public static final String FRAGMENT_TITLE = "fragmentTitle";
@@ -33,8 +35,8 @@ public class PortfolioPagerAdapter extends FragmentPagerAdapter {
                 // user has no set location, no custom profile, but IS connected to Instagram
                 switch (position) {
                     case 0: break; // suggestion
-                    case 1: break; // shared recycler
-                    case 2: break; // unshared recycler
+                    case 1: return FbRecyclerFragment.newInstance(); // shared recycler
+                    case 2: return UnsharedFragment.newInstance(mUser); // unshared recycler
                 }
                 break;
             case 5:
@@ -55,8 +57,8 @@ public class PortfolioPagerAdapter extends FragmentPagerAdapter {
                 // user has no custom profile, but DOES have a set location and is connected to Instagram
                 switch (position) {
                     case 0: break; // suggestion
-                    case 1: break; // shared recycler
-                    case 2: break; // unshared recycler
+                    case 1: return FbRecyclerFragment.newInstance(); // shared recycler
+                    case 2: return UnsharedFragment.newInstance(mUser); // unshared recycler
                     case 3: return ProfileFragment.newInstance(mUser, mUserFlag); // profile with map
                 }
                 break;
@@ -64,8 +66,8 @@ public class PortfolioPagerAdapter extends FragmentPagerAdapter {
                 // user has no set location, but DOES have a custom profile and is connected to Instagram
                 switch (position) {
                     case 0: break; // suggestion
-                    case 1: break; // shared recycler
-                    case 2: break; // unshared recycler
+                    case 1: return FbRecyclerFragment.newInstance(); // shared recycler
+                    case 2: return UnsharedFragment.newInstance(mUser); // unshared recycler
                     case 3: return ProfileFragment.newInstance(mUser, mUserFlag); // profile with text
                 }
                 break;
@@ -79,8 +81,8 @@ public class PortfolioPagerAdapter extends FragmentPagerAdapter {
             case 15:
                 // user IS connected to Instagram and DOES have a set location and custom profile
                 switch (position) {
-                    case 0: break; // shared recycler
-                    case 1: break; // unshared recycler
+                    case 0: return FbRecyclerFragment.newInstance(); // shared recycler
+                    case 1: return UnsharedFragment.newInstance(mUser); // unshared recycler
                     case 2: return ProfileFragment.newInstance(mUser, mUserFlag); // profile with map & text
                 }
                 break;
@@ -111,6 +113,10 @@ public class PortfolioPagerAdapter extends FragmentPagerAdapter {
             case SuggestionFragment.FRAGMENT_TITLE:
                 return title;
             case ProfileFragment.FRAGMENT_TITLE:
+                return title;
+            case UnsharedFragment.FRAGMENT_TITLE:
+                return title;
+            case FbRecyclerFragment.FRAGMENT_TITLE:
                 return title;
             default:
                 return super.getPageTitle(position);

@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import nullworks.com.inked.R;
 import nullworks.com.inked.adapters.FbRecyclerAdapter;
 import nullworks.com.inked.adapters.MediaViewHolder;
+import nullworks.com.inked.adapters.PortfolioPagerAdapter;
 import nullworks.com.inked.models.Datum;
 
 /**
@@ -27,6 +28,8 @@ public class FbRecyclerFragment extends Fragment {
 
     private static final String TAG = "FbRecyclerFragment";
 
+    public static final String FRAGMENT_TITLE = "shared";
+
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager mLayoutManager;
     private FbRecyclerAdapter mAdapter;
@@ -34,7 +37,11 @@ public class FbRecyclerFragment extends Fragment {
     private DatabaseReference mRef;
 
     public static FbRecyclerFragment newInstance() {
-        return new FbRecyclerFragment();
+        FbRecyclerFragment fragment = new FbRecyclerFragment();
+        Bundle args = new Bundle();
+        args.putString(PortfolioPagerAdapter.FRAGMENT_TITLE, FRAGMENT_TITLE);
+        fragment.setArguments(args);
+        return fragment;
     }
 
     @Override

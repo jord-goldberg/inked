@@ -16,7 +16,6 @@ public class FbRecyclerAdapter extends FirebaseRecyclerAdapter<Datum, MediaViewH
 
     private static final String TAG = "FbRecyclerAdapter";
 
-    private Object mLock = new Object();
     private double mMeasuredWidth = 0.0;
 
     public FbRecyclerAdapter(Class<Datum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, DatabaseReference ref) {

@@ -1,7 +1,7 @@
 package nullworks.com.inked;
 
 import nullworks.com.inked.models.AccessToken;
-import nullworks.com.inked.models.Media;
+import nullworks.com.inked.models.Envelope;
 import retrofit2.Call;;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
@@ -24,10 +24,10 @@ public interface InstaService {
                                      @Field("code") String code);
 
     @GET("/v1/users/self/media/recent/")
-    Call<Media> getRecentMedia(@Query("access_token") String accessToken);
+    Call<Envelope> getRecentMedia(@Query("access_token") String accessToken);
 
     @GET("/v1/users/self/media/recent/")
-    Call<Media> getMoreMedia(@Query("access_token") String accessToken,
-                             @Query("max_id") String maxId);
+    Call<Envelope> getMedia(@Query("access_token") String accessToken,
+                                @Query("max_id") String maxId);
 
 }
