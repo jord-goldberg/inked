@@ -10,7 +10,7 @@ import nullworks.com.inked.models.User;
 /**
  * Created by joshuagoldberg on 9/7/16.
  */
-public class Location implements Serializable {
+public class Location {
 
     @SerializedName("name")
     @Expose

@@ -1,9 +1,9 @@
 package nullworks.com.inked.fragments;
 
+import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,12 +12,13 @@ import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
 import nullworks.com.inked.R;
+import nullworks.com.inked.UserSingleton;
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
 import nullworks.com.inked.models.custom.InkedUser;
 
@@ -28,7 +29,6 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String TAG = "LocationFragment";
     private static final String USER_FLAG = "userFlag";
-    private static final String INKED_USER = "inkedUser";
 
     public static final String FRAGMENT_TITLE = "profile";
 
@@ -43,15 +43,14 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback {
     TextView mProfileText;
 
     GoogleMap mMap;
-    SupportMapFragment mMapFragment;
+    MapFragment mMapFragment;
 
     private OnFragmentInteractionListener mListener;
 
-    public static ProfileFragment newInstance(InkedUser user, int userFlag) {
+    public static ProfileFragment newInstance(int userFlag) {
         ProfileFragment fragment = new ProfileFragment();
         Bundle args = new Bundle();
         args.putString(PortfolioPagerAdapter.FRAGMENT_TITLE, FRAGMENT_TITLE);
-        args.putSerializable(INKED_USER, user);
         args.putInt(USER_FLAG, userFlag);
         fragment.setArguments(args);
         return fragment;
@@ -60,8 +59,8 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mUser = UserSingleton.getInstance().getUser();
         if (getArguments() != null) {
-            mUser = (InkedUser) getArguments().getSerializable(INKED_USER);
             mUserFlag = getArguments().getInt(USER_FLAG, 0);
         }
     }
@@ -78,7 +77,7 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback {
         }
         // Check to see if the user has a set location
         if (mUserFlag == 5 || mUserFlag == 8 || mUserFlag == 12 || mUserFlag == 15) { // has location
-            mMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+            mMapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         }
         // Check to see if the user has a custom profile
         if (mUserFlag == 7 || mUserFlag == 10 || mUserFlag == 12 || mUserFlag == 15) { // has profile

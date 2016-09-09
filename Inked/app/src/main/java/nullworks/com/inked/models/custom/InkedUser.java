@@ -1,10 +1,8 @@
 package nullworks.com.inked.models.custom;
 
-import com.google.android.gms.location.places.Place;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 
 import nullworks.com.inked.models.Datum;
@@ -13,7 +11,7 @@ import nullworks.com.inked.models.User;
 /**
  * Created by joshuagoldberg on 9/7/16.
  */
-public class InkedUser implements Serializable {
+public class InkedUser {
 
     @SerializedName("user")
     @Expose
@@ -24,21 +22,21 @@ public class InkedUser implements Serializable {
     @SerializedName("location")
     @Expose
     private Location location;
-    @SerializedName("shared_media")
+    @SerializedName("shared")
     @Expose
-    private ArrayList<Datum> sharedMedia;
-    @SerializedName("unshared_media")
+    private ArrayList<Datum> shared;
+    @SerializedName("unshared")
     @Expose
-    private ArrayList<Datum> unsharedMedia;
+    private ArrayList<Datum> unshared;
 
     public InkedUser() {
     }
 
-    public InkedUser(User user, Location location, String profile, ArrayList<Datum> sharedMedia, ArrayList<Datum> unsharedMedia) {
+    public InkedUser(User user, Location location, String profile, ArrayList<Datum> shared, ArrayList<Datum> unshared) {
         this.location = location;
         this.profile = profile;
-        this.sharedMedia = sharedMedia;
-        this.unsharedMedia = unsharedMedia;
+        this.shared = shared;
+        this.unshared = unshared;
         this.user = user;
     }
 
@@ -58,20 +56,20 @@ public class InkedUser implements Serializable {
         this.profile = profile;
     }
 
-    public ArrayList<Datum> getSharedMedia() {
-        return sharedMedia;
+    public ArrayList<Datum> getShared() {
+        return shared;
     }
 
-    public void setSharedMedia(ArrayList<Datum> sharedMedia) {
-        this.sharedMedia = sharedMedia;
+    public void setShared(ArrayList<Datum> shared) {
+        this.shared = shared;
     }
 
-    public ArrayList<Datum> getUnsharedMedia() {
-        return unsharedMedia;
+    public ArrayList<Datum> getUnshared() {
+        return unshared;
     }
 
-    public void setUnsharedMedia(ArrayList<Datum> unsharedMedia) {
-        this.unsharedMedia = unsharedMedia;
+    public void setUnshared(ArrayList<Datum> unshared) {
+        this.unshared = unshared;
     }
 
     public User getUser() {

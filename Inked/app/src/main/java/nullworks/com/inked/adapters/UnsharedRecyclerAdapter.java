@@ -10,6 +10,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 
+import nullworks.com.inked.fragments.UnsharedFragment;
+import nullworks.com.inked.interfaces.UnsharedClickListener;
 import nullworks.com.inked.models.Datum;
 
 /**
@@ -17,16 +19,27 @@ import nullworks.com.inked.models.Datum;
  */
 public class UnsharedRecyclerAdapter extends FirebaseRecyclerAdapter<Datum, MediaViewHolder> {
 
-    private static final String TAG = "FbRecyclerAdapter";
+    private static final String TAG = "UnsharedRecyclerAdapter";
+
+    private UnsharedClickListener mListener;
 
     private double mMeasuredWidth = 0.0;
 
-    public UnsharedRecyclerAdapter(Class<Datum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, DatabaseReference ref) {
+    public UnsharedRecyclerAdapter(Class<Datum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass,
+                                   DatabaseReference ref, UnsharedClickListener listener) {
         super(modelClass, modelLayout, viewHolderClass, ref);
+        mListener = listener;
     }
 
-    public UnsharedRecyclerAdapter(Class<Datum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, Query ref) {
+    public UnsharedRecyclerAdapter(Class<Datum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass,
+                                   Query ref, UnsharedClickListener listener) {
         super(modelClass, modelLayout, viewHolderClass, ref);
+        mListener = listener;
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
     }
 
     @Override
@@ -47,7 +60,7 @@ public class UnsharedRecyclerAdapter extends FirebaseRecyclerAdapter<Datum, Medi
             viewHolder.getMainImage().setMaxHeight((int) height);
         }
 
-        Glide.with(viewHolder.getMainImage().getContext())
+        Glide.with(viewHolder.getMainImage().getContext().getApplicationContext())
                 .load(model.getImages().getStandardResolution().getUrl())
                 .fitCenter()
                 .into(viewHolder.getMainImage());
@@ -55,14 +68,7 @@ public class UnsharedRecyclerAdapter extends FirebaseRecyclerAdapter<Datum, Medi
         viewHolder.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                //Add media to "media" in firebase
-                FirebaseDatabase.getInstance().getReference().child("media").child(model.getId()).setValue(model);
-                // Add media to shared list
-                FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance()
-                        .getCurrentUser().getUid()).child("shared").child(model.getId()).setValue(model);
-                // Remove media from unshared list
-                FirebaseDatabase.getInstance().getReference().child("users").child(FirebaseAuth.getInstance()
-                        .getCurrentUser().getUid()).child("unshared").child(model.getId()).setValue(null);
+                mListener.onUnsharedClicked(model);
                 return true;
             }
         });

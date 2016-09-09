@@ -1,10 +1,11 @@
 package nullworks.com.inked;
 
+import android.app.DialogFragment;
+import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
@@ -38,31 +39,43 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
-import nullworks.com.inked.adapters.InstaRecyclerAdapter;
+import nullworks.com.inked.fragments.FbRecyclerFragment;
+import nullworks.com.inked.fragments.FlipCardFragment;
+import nullworks.com.inked.fragments.UnsharedFragment;
+import nullworks.com.inked.transformers.ZoomOutPageTransformer;
 import nullworks.com.inked.fragments.ProfileFragment;
 import nullworks.com.inked.fragments.LoginDialogFragment;
 import nullworks.com.inked.fragments.SuggestionFragment;
+import nullworks.com.inked.interfaces.InstaService;
 import nullworks.com.inked.models.AccessToken;
 import nullworks.com.inked.models.Datum;
+import nullworks.com.inked.models.Envelope;
 import nullworks.com.inked.models.User;
 import nullworks.com.inked.models.custom.InkedUser;
 import nullworks.com.inked.models.custom.Location;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PortfolioActivity extends AppCompatActivity
         implements LoginDialogFragment.AccessTokenReceived,
         SuggestionFragment.SuggestionFragmentListener,
-        ProfileFragment.OnFragmentInteractionListener,
-        InstaRecyclerAdapter.NewMediaClicked {
+        ProfileFragment.OnFragmentInteractionListener {
 
     private static final String TAG = "PortfolioActivity";
 
     public static final String SHARED_PREFS = "nullworks.com.inked";
     public static final String ACCESS_TOKEN = "access_token";
+    public static final String PROFILE_PIC = "profile_pic";
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 300;
 
-    private String mUserId;
-    private String mAccessToken;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mRef;
+
+    private GoogleApiClient mGoogleApiClient;
 
     private ImageView mProfilePic;
     private TextView mFullNameText;
@@ -73,15 +86,12 @@ public class PortfolioActivity extends AppCompatActivity
     private TabLayout mTabLayout;
     private PortfolioPagerAdapter mPagerAdapter;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mRef;
-
-    private GoogleApiClient mGoogleApiClient;
-
     private InkedUser mUser;
 
-    private ArrayList<Datum> mData;
-    private ArrayList<Datum> mNewMedia;
+    private ArrayList<Fragment> mFragments;
+
+    private String mUserId;
+    private String mAccessToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +101,11 @@ public class PortfolioActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        mData = new ArrayList<>();
-        mNewMedia = new ArrayList<>();
+        mRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        mUserId = mAuth.getCurrentUser().getUid();
+
+        buildGoogleApiClient();
 
         mProfilePic = (ImageView) findViewById(R.id.profile_picture);
         mFullNameText = (TextView) findViewById(R.id.fullname_textview);
@@ -101,18 +114,15 @@ public class PortfolioActivity extends AppCompatActivity
         mViewPager = (ViewPager) findViewById(R.id.profile_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
 
-        mRef = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        mUserId = mAuth.getCurrentUser().getUid();
+        mFragments = new ArrayList<>();
 
-        buildGoogleApiClient();
+        mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
-        setUserInfo();
+        getUserInfo();
     }
 
     @Override
@@ -125,13 +135,10 @@ public class PortfolioActivity extends AppCompatActivity
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == PLACE_AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
+
                 Place place = PlaceAutocomplete.getPlace(this, data);
-                mUser.getLocation().setAddress(place.getAddress().toString());
-                mUser.getLocation().setId(place.getId());
-                mUser.getLocation().setLatitude(place.getLatLng().latitude);
-                mUser.getLocation().setLongitude(place.getLatLng().longitude);
-                mUser.getLocation().setName(place.getName().toString());
-                mRef.child("users").child(mAuth.getCurrentUser().getUid()).setValue(mUser);
+                setLocation(place);
+
             } else if (resultCode == PlaceAutocomplete.RESULT_ERROR) {
                 Status status = PlaceAutocomplete.getStatus(this, data);
                 // TODO: Handle the error.
@@ -141,22 +148,24 @@ public class PortfolioActivity extends AppCompatActivity
                 // The user canceled the operation.
             }
         }
-        startActivity(new Intent(this, PortfolioActivity.class));
-        finish();
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+
         // Store access token
         getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
                 .edit()
                 .putString(ACCESS_TOKEN, mAccessToken)
                 .commit();
+
+        // Set User data on firebase
+        mRef.child("users").child(mUserId).setValue(mUser);
+
         // Check to see if the user is signed in; this may be after a sign-out
         if (mAuth.getCurrentUser() != null) {
-            for (int i = 0; i < mNewMedia.size(); i++)
-                mRef.child("media").child(mNewMedia.get(i).getId()).setValue(mNewMedia.get(i));
+
         }
     }
 
@@ -190,14 +199,6 @@ public class PortfolioActivity extends AppCompatActivity
         placesAutoComplete();
     }
 
-    @Override
-    public void onNewMediaClicked(Datum datum) {
-        if (!mNewMedia.contains(datum)) {
-            mNewMedia.add(datum);
-        } else {
-            mNewMedia.remove(datum);
-        }
-    }
 
     private synchronized void buildGoogleApiClient() {
         PlacesHelper helper = new PlacesHelper(mGoogleApiClient);
@@ -208,14 +209,18 @@ public class PortfolioActivity extends AppCompatActivity
                 .build();
     }
 
-    // sets user info from firebase (one-time event)
-    public void setUserInfo() {
-        mRef.child("users").child(mUserId).addListenerForSingleValueEvent(new ValueEventListener() {
+    // gets UserSingleton info from firebase
+    public void getUserInfo() {
+
+        mRef.child("users").child(mUserId).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                mUser = dataSnapshot.getValue(InkedUser.class);
+
+                UserSingleton.getInstance().setUser(dataSnapshot.getValue(InkedUser.class));
+                mUser = UserSingleton.getInstance().getUser();
+
                 if (mUser == null) {
-                    mUser = new InkedUser(new User(), new Location(), null, null, null);
+                    mUser = new InkedUser();
                 }
                 if (mUser.getLocation() == null) {
                     mUser.setLocation(new Location());
@@ -223,9 +228,14 @@ public class PortfolioActivity extends AppCompatActivity
                 if (mUser.getUser() == null) {
                     mUser.setUser(new User());
                 }
+                if (mUser.getUnshared() == null) {
+                    mUser.setUnshared(new ArrayList<Datum>());
+                }
+                if (mUser.getShared() == null) {
+                    mUser.setShared(new ArrayList<Datum>());
+                }
                 setLayout(mUser);
             }
-
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
@@ -234,52 +244,63 @@ public class PortfolioActivity extends AppCompatActivity
     }
 
     public void setLayout(InkedUser user) {
-        int userFlag = 0;
 
-        // get a unique user flag depending on user info
-        if (user.getUser().getId() != null)
-            userFlag += 3;
-        if (user.getLocation().getId() != null)
-            userFlag += 5;
-        if (user.getProfile() != null)
-            userFlag += 7;
+        if(!isDestroyed()) {
 
-        Log.d(TAG, "setLayout: userFlag: " + userFlag);
+            mFragments.clear();
 
-        // Check to see if the user is connected with instagram
-        if (userFlag == 0 || userFlag == 5 || userFlag == 7 || userFlag == 12) { // not connected
-            Log.d(TAG, "setLayout: " + mAuth.getCurrentUser().getPhotoUrl());
-            mFullNameText.setText(mAuth.getCurrentUser().getDisplayName());
-            //TODO: GET A DEFAULT USER PHOTO FOR EVERYONE TO SEE
-            Glide.with(PortfolioActivity.this)
-                    .load(mAuth.getCurrentUser().getPhotoUrl())
-                    .fitCenter()
-                    .into(mProfilePic);
-            //TODO: GET A DEFAULT USER PHOTO FOR EVERYONE TO SEE
-        } else { // connected
-            mFullNameText.setText(mUser.getUser().getFullName());
-            Glide.with(PortfolioActivity.this)
-                    .load(mUser.getUser().getProfilePicture().replace("s150x150", ""))
-                    .fitCenter()
-                    .into(mProfilePic);
-            if (mAccessToken == null) { // connected, but no access token
-                userFlag -= 3;
+            int userFlag = 0;
+
+            // get a unique user flag depending on user info
+            if (user.getUser().getId() != null)
+                userFlag += 3;
+            if (user.getLocation().getId() != null)
+                userFlag += 5;
+            if (user.getProfile() != null)
+                userFlag += 7;
+
+            Log.d(TAG, "setLayout: userFlag: " + userFlag);
+
+            // Set full name depending on data available
+            if (user.getUser().getFullName() != null) {
+                mFullNameText.setText(mUser.getUser().getFullName());
+            } else {
+                mFullNameText.setText(mAuth.getCurrentUser().getDisplayName());
             }
-        }
 
-        // Check to see if the user has a set location
-        if (userFlag == 0 || userFlag == 3 || userFlag == 7 || userFlag == 10) { // no location
-            mLocationView.setVisibility(View.GONE);
-        } else { // location set
-            mLocationText.setText(mUser.getLocation().getAddress());
-        }
+            // Set profile picture to instagram profile picture if available
+            if (mUser.getUser().getProfilePicture() != null) {
+                Glide.with(PortfolioActivity.this)
+                        .load(mUser.getUser().getProfilePicture().replace("s150x150", ""))
+                        .fitCenter()
+                        .into(mProfilePic);
+            } //TODO: GET A DEFAULT USER PHOTO FOR EVERYONE TO SEE
 
-        mPagerAdapter = new PortfolioPagerAdapter(getSupportFragmentManager(), mUser, userFlag);
-        mViewPager.setAdapter(mPagerAdapter);
-        mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
-        mTabLayout.setupWithViewPager(mViewPager, true);
-        if (userFlag == 0) {
-            mTabLayout.setVisibility(View.GONE);
+            // Add a suggestion fragment if user profile is not complete
+            if (userFlag != 15) {
+                mFragments.add(SuggestionFragment.newInstance(userFlag));
+            }
+            // Check to see if the user has instagram access token
+            if (userFlag == 3 || userFlag == 8 || userFlag == 10 || userFlag == 15) { // has token
+//                mFragments.add(FlipCardFragment.newInstance());
+                mFragments.add(FbRecyclerFragment.newInstance());
+                mFragments.add(UnsharedFragment.newInstance());
+            }
+            // Check to see if the user has a set location
+            if (userFlag == 5 || userFlag == 8 || userFlag == 12 || userFlag == 15) { // has location
+                mLocationView.setVisibility(View.VISIBLE);
+                mLocationText.setText(mUser.getLocation().getAddress());
+                mFragments.add(ProfileFragment.newInstance(userFlag));
+            }
+            // Check to see if user has a custom profile && no location
+            if (userFlag == 7 || userFlag == 10) { // has profile
+                mFragments.add(ProfileFragment.newInstance(userFlag));
+            }
+
+            mPagerAdapter = new PortfolioPagerAdapter(getFragmentManager(), mFragments);
+            mViewPager.setAdapter(mPagerAdapter);
+            mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+            mTabLayout.setupWithViewPager(mViewPager, true);
         }
     }
 
@@ -300,7 +321,7 @@ public class PortfolioActivity extends AppCompatActivity
 
     public void instagramSignIn() {
         DialogFragment dialogFragment = new LoginDialogFragment();
-        dialogFragment.show(getSupportFragmentManager(), "dialog");
+        dialogFragment.show(getFragmentManager(), "dialog");
         //TODO: Add ability to log out of Instagram with warning that all pictures will be unshared.
     }
 
@@ -310,9 +331,54 @@ public class PortfolioActivity extends AppCompatActivity
         mAccessToken = accessToken.getAccessToken();
         mUser.setUser(accessToken.getUser());
         // TODO: Make this happen after the user agrees to save changes
-        mRef.child("users").child(mAuth.getCurrentUser().getUid()).setValue(mUser);
-        startActivity(new Intent(this, PortfolioActivity.class));
-        finish();
+        mRef.child("users").child(mUserId).child("user").setValue(mUser.getUser());
+        if (mUser.getUnshared().isEmpty()) {
+            instaMediaApiCall();
+        }
+    }
+
+    public void instaMediaApiCall() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(InstaService.BASE_URL)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        InstaService service = retrofit.create(InstaService.class);
+
+        Call<Envelope> call = service.getRecentMedia(mAccessToken);
+
+        call.enqueue(new Callback<Envelope>() {
+            @Override
+            public void onResponse(Call<Envelope> call, Response<Envelope> response) {
+                try {
+
+                    for (int i = 0; i < response.body().getData().size(); i++) {
+                        Datum datum = response.body().getData().get(i);
+                        // Check to see if it's an image or video
+                        if (datum.getType().equals("image")) {
+                            mUser.getUnshared().add(datum);
+                        }
+                    }
+                    mRef.child("users").child(mUserId).child("unshared")
+                            .setValue(mUser.getUnshared());
+                    Log.i(TAG, "onResponse: Instagram photos added");
+
+                    if (response.body().getMeta().getCode() == 400) {
+                        Log.d(TAG, "onResponse: Instagram code: " + response.body().getMeta().getCode());
+                        // Access token has expired
+                        mAccessToken = null;
+                    }
+                    //TODO: After Instagram approves this app use Pagination to get more data
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            @Override
+            public void onFailure(Call<Envelope> call, Throwable t) {
+                Log.w(TAG, "onFailure: ", t);
+            }
+        });
     }
 
     public void placesAutoComplete() {
@@ -323,7 +389,9 @@ public class PortfolioActivity extends AppCompatActivity
             Intent intent = new PlaceAutocomplete.IntentBuilder(PlaceAutocomplete.MODE_OVERLAY)
                     .setFilter(typeFilter)
                     .build(this);
+
             startActivityForResult(intent, PLACE_AUTOCOMPLETE_REQUEST_CODE);
+
         } catch (GooglePlayServicesRepairableException e) {
             // TODO: Handle the error.
             Log.e(TAG, "placesAutoComplete: ", e);
@@ -331,5 +399,14 @@ public class PortfolioActivity extends AppCompatActivity
             // TODO: Handle the error.
             Log.e(TAG, "placesAutoComplete: ", e);
         }
+    }
+
+    public void setLocation(Place place) {
+        mUser.getLocation().setAddress(place.getAddress().toString());
+        mUser.getLocation().setId(place.getId());
+        mUser.getLocation().setLatitude(place.getLatLng().latitude);
+        mUser.getLocation().setLongitude(place.getLatLng().longitude);
+        mUser.getLocation().setName(place.getName().toString());
+        mRef.child("users").child(mUserId).child("location").setValue(mUser.getLocation());
     }
 }

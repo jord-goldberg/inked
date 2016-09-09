@@ -1,4 +1,4 @@
-package nullworks.com.inked;
+package nullworks.com.inked.transformers;
 
 import android.support.v4.view.ViewPager;
 import android.view.View;

@@ -1,4 +1,4 @@
-package nullworks.com.inked;
+package nullworks.com.inked.interfaces;
 
 import nullworks.com.inked.models.AccessToken;
 import nullworks.com.inked.models.Envelope;
