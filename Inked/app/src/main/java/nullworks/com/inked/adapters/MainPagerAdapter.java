@@ -1,14 +1,13 @@
 package nullworks.com.inked.adapters;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentStatePagerAdapter;
+
+import android.app.Fragment;
+
+import android.app.FragmentManager;
+import android.support.v13.app.FragmentStatePagerAdapter;
 import android.view.Menu;
 
-import java.util.ArrayList;
-
 import nullworks.com.inked.fragments.FbRecyclerFragment;
-import nullworks.com.inked.models.Datum;
 
 /**
  * Created by joshuagoldberg on 9/2/16.

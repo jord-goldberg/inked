@@ -11,28 +11,32 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 import nullworks.com.inked.R;
+import nullworks.com.inked.interfaces.UnsharedClickListener;
 import nullworks.com.inked.models.Datum;
 
 /**
  * Created by joshuagoldberg on 9/5/16.
  */
-public class InstaRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
+public class MediaRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
 
     private static final String TAG = "PortfolioRecyclerAdaper";
 
-    private ArrayList<Datum> mData;
+    private UnsharedClickListener mListener;
 
-    private NewMediaClicked mNewMediaClicked;
+    private ArrayList<Datum> mData;
 
     private double mMeasuredWidth = 0.0;
 
-    public InstaRecyclerAdapter(ArrayList<Datum> data) {
+    private boolean mIsClickable;
+
+    public MediaRecyclerAdapter(ArrayList<Datum> data, boolean isClickable, UnsharedClickListener listener) {
         mData = data;
+        mIsClickable = isClickable;
+        mListener = listener;
     }
 
     @Override
     public MediaViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        mNewMediaClicked = (NewMediaClicked) parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View parentView = inflater.inflate(R.layout.card_grid, parent, false);
         MediaViewHolder mainViewHolder = new MediaViewHolder(parentView);
@@ -62,24 +66,20 @@ public class InstaRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> 
                 .fitCenter()
                 .into(holder.getMainImage());
 
-        holder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (holder.getMainImage().getImageAlpha() == 255)
-                    holder.getMainImage().setImageAlpha(125);
-                else
-                    holder.getMainImage().setImageAlpha(255);
-                mNewMediaClicked.onNewMediaClicked(mData.get(position));
-            }
-        });
+        if (mIsClickable) {
+            holder.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    mListener.onUnsharedClicked(mData.get(position));
+                    notifyDataSetChanged();
+                    return true;
+                }
+            });
+        }
     }
 
     @Override
     public int getItemCount() {
         return mData.size();
-    }
-
-    public interface NewMediaClicked {
-        void onNewMediaClicked(Datum datum);
     }
 }

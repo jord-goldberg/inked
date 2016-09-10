@@ -1,11 +1,9 @@
 package nullworks.com.inked;
 
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
-import android.support.v4.app.DialogFragment;
 import android.support.v4.view.ViewPager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -27,8 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import nullworks.com.inked.adapters.MainPagerAdapter;
-import nullworks.com.inked.fragments.LoginDialogFragment;
-import nullworks.com.inked.models.AccessToken;
+import nullworks.com.inked.transformers.DepthPageTransformer;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -77,7 +74,7 @@ public class MainActivity extends AppCompatActivity
         mViewPager = (ViewPager) findViewById(R.id.main_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
         mTabLayout.setupWithViewPager(mViewPager, true);
-        mPagerAdapter = new MainPagerAdapter(getSupportFragmentManager(), mCategorySubMenu);
+        mPagerAdapter = new MainPagerAdapter(getFragmentManager(), mCategorySubMenu);
         mViewPager.setAdapter(mPagerAdapter);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
         // Add a listener to check Navigation Drawer items as we scroll through them
@@ -215,14 +212,14 @@ public class MainActivity extends AppCompatActivity
 
     public void checkForAuthorizedUser() {
         if (mAuth.getCurrentUser() != null) { // User is signed in
-            // Show profile option in Nav Drawer
+            // Show portfolio option in Nav Drawer
             mNavigationView.getMenu().getItem(0).setVisible(false);
             mNavigationView.getMenu().getItem(1).setVisible(true);
             // Make Nav header views visible
             mProfilePic.setVisibility(View.VISIBLE);
             mDisplayName.setVisibility(View.VISIBLE);
             mEmailAddress.setVisibility(View.VISIBLE);
-            // Get user data from mAuth
+            // Display user data from mAuth
             Glide.with(this)
                     .load(mAuth.getCurrentUser().getPhotoUrl())
                     .dontTransform()
