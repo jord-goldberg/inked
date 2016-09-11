@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -39,13 +40,12 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
-import nullworks.com.inked.fragments.FbRecyclerFragment;
-import nullworks.com.inked.fragments.FlipCardFragment;
+import nullworks.com.inked.fragments.SharedFragment;
 import nullworks.com.inked.fragments.UnsharedFragment;
+import nullworks.com.inked.models.custom.InkedDatum;
 import nullworks.com.inked.transformers.ZoomOutPageTransformer;
 import nullworks.com.inked.fragments.ProfileFragment;
 import nullworks.com.inked.fragments.LoginDialogFragment;
-import nullworks.com.inked.fragments.SuggestionFragment;
 import nullworks.com.inked.interfaces.InstaService;
 import nullworks.com.inked.models.AccessToken;
 import nullworks.com.inked.models.Datum;
@@ -61,14 +61,13 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class PortfolioActivity extends AppCompatActivity
         implements LoginDialogFragment.AccessTokenReceived,
-        SuggestionFragment.SuggestionFragmentListener,
-        ProfileFragment.OnFragmentInteractionListener {
+        ProfileFragment.ProfileFragmentListener,
+        UnsharedFragment.UnsharedFragmentListener {
 
     private static final String TAG = "PortfolioActivity";
 
     public static final String SHARED_PREFS = "nullworks.com.inked";
     public static final String ACCESS_TOKEN = "access_token";
-    public static final String PROFILE_PIC = "profile_pic";
 
     private static final int PLACE_AUTOCOMPLETE_REQUEST_CODE = 300;
 
@@ -85,6 +84,8 @@ public class PortfolioActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private PortfolioPagerAdapter mPagerAdapter;
+
+    private FloatingActionButton mShareUnsharedFab;
 
     private InkedUser mUser;
 
@@ -113,6 +114,7 @@ public class PortfolioActivity extends AppCompatActivity
         mLocationText = (TextView) findViewById(R.id.user_location_textview);
         mViewPager = (ViewPager) findViewById(R.id.profile_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
+        mShareUnsharedFab = (FloatingActionButton) findViewById(R.id.fab_share_media);
 
         mFragments = new ArrayList<>();
 
@@ -122,13 +124,44 @@ public class PortfolioActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
-        getUserInfo();
+
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            @Override
+            public void onPageSelected(int position) {
+                if (mPagerAdapter.getItem(position).getArguments()
+                        .getString(PortfolioPagerAdapter.FRAGMENT_TITLE, "")
+                        .equals(UnsharedFragment.FRAGMENT_TITLE)
+                        && !UserSingleton.getInstance().getDataToShare().isEmpty()) {
+                    mShareUnsharedFab.setVisibility(View.VISIBLE);
+                } else {
+                    mShareUnsharedFab.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+        });
+
+        // Adjust shared and unshared lists; clear the dataToShare list
+        mShareUnsharedFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                for (int i = 0; i < UserSingleton.getInstance().getDataToShare().size(); i++) {
+                    mUser.getShared().add(UserSingleton.getInstance().getDataToShare().get(i));
+                    mUser.getUnshared().remove(UserSingleton.getInstance().getDataToShare().get(i));
+                }
+                UserSingleton.getInstance().getDataToShare().clear();
+            }
+        });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        getUserInfo();
     }
 
     @Override
@@ -160,8 +193,20 @@ public class PortfolioActivity extends AppCompatActivity
                 .putString(ACCESS_TOKEN, mAccessToken)
                 .commit();
 
+        // Clear pending dataToBeShared that hasn't been confirmed && make shareUnsharedFab gone
+        UserSingleton.getInstance().getDataToShare().clear();
+        mShareUnsharedFab.setVisibility(View.GONE);
+
         // Set User data on firebase
         mRef.child("users").child(mUserId).setValue(mUser);
+
+        // Save shared photos to media in firebase (media -> lat -> lng -> id -> datum)
+        for (int i = 0; i < mUser.getShared().size(); i++) {
+            mRef.child("media")
+                    .child(mUser.getShared().get(i).getId())
+                    .setValue(mUser.getShared().get(i));
+        }
+
 
         // Check to see if the user is signed in; this may be after a sign-out
         if (mAuth.getCurrentUser() != null) {
@@ -195,8 +240,16 @@ public class PortfolioActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction() {
-        placesAutoComplete();
+    public void onProfileFragmentInteraction(int viewId) {
+        switch (viewId) {
+            default:
+            case R.id.insta_login_button:
+                instagramSignIn();
+                break;
+            case R.id.set_location_button:
+                placesAutoComplete();
+                break;
+        }
     }
 
 
@@ -229,10 +282,10 @@ public class PortfolioActivity extends AppCompatActivity
                     mUser.setUser(new User());
                 }
                 if (mUser.getUnshared() == null) {
-                    mUser.setUnshared(new ArrayList<Datum>());
+                    mUser.setUnshared(new ArrayList<InkedDatum>());
                 }
                 if (mUser.getShared() == null) {
-                    mUser.setShared(new ArrayList<Datum>());
+                    mUser.setShared(new ArrayList<InkedDatum>());
                 }
                 setLayout(mUser);
             }
@@ -276,46 +329,22 @@ public class PortfolioActivity extends AppCompatActivity
                         .into(mProfilePic);
             } //TODO: GET A DEFAULT USER PHOTO FOR EVERYONE TO SEE
 
-            // Add a suggestion fragment if user profile is not complete
-            if (userFlag != 15) {
-                mFragments.add(SuggestionFragment.newInstance(userFlag));
-            }
-            // Check to see if the user has instagram access token
-            if (userFlag == 3 || userFlag == 8 || userFlag == 10 || userFlag == 15) { // has token
-//                mFragments.add(FlipCardFragment.newInstance());
-                mFragments.add(FbRecyclerFragment.newInstance());
+            mFragments.add(ProfileFragment.newInstance(userFlag));
+            // Check to see if profile is able to share media
+            if (userFlag == 8 || userFlag == 15) { // is able
+                mFragments.add(SharedFragment.newInstance());
                 mFragments.add(UnsharedFragment.newInstance());
             }
             // Check to see if the user has a set location
             if (userFlag == 5 || userFlag == 8 || userFlag == 12 || userFlag == 15) { // has location
                 mLocationView.setVisibility(View.VISIBLE);
                 mLocationText.setText(mUser.getLocation().getAddress());
-                mFragments.add(ProfileFragment.newInstance(userFlag));
-            }
-            // Check to see if user has a custom profile && no location
-            if (userFlag == 7 || userFlag == 10) { // has profile
-                mFragments.add(ProfileFragment.newInstance(userFlag));
             }
 
             mPagerAdapter = new PortfolioPagerAdapter(getFragmentManager(), mFragments);
             mViewPager.setAdapter(mPagerAdapter);
             mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
             mTabLayout.setupWithViewPager(mViewPager, true);
-        }
-    }
-
-    @Override
-    public void onSuggestionFragmentInteraction(int viewId) {
-        switch (viewId) {
-            default:
-            case R.id.insta_login_button:
-                instagramSignIn();
-                break;
-            case R.id.set_location_button:
-                placesAutoComplete();
-                break;
-            case R.id.customize_profile_button:
-                break;
         }
     }
 
@@ -356,12 +385,12 @@ public class PortfolioActivity extends AppCompatActivity
                         Datum datum = response.body().getData().get(i);
                         // Check to see if it's an image or video
                         if (datum.getType().equals("image")) {
-                            mUser.getUnshared().add(datum);
+                            mUser.getUnshared().add(instagramDatumToInked(datum));
                         }
                     }
                     mRef.child("users").child(mUserId).child("unshared")
                             .setValue(mUser.getUnshared());
-                    Log.i(TAG, "onResponse: Instagram photos added");
+                    Log.i(TAG, "onResponse: Instagram photos added to firebase");
 
                     if (response.body().getMeta().getCode() == 400) {
                         Log.d(TAG, "onResponse: Instagram code: " + response.body().getMeta().getCode());
@@ -381,6 +410,7 @@ public class PortfolioActivity extends AppCompatActivity
         });
     }
 
+    // Launch the places autocomplete widget so user can set location
     public void placesAutoComplete() {
         AutocompleteFilter typeFilter = new AutocompleteFilter.Builder()
                 .setTypeFilter(AutocompleteFilter.TYPE_FILTER_CITIES)
@@ -402,11 +432,54 @@ public class PortfolioActivity extends AppCompatActivity
     }
 
     public void setLocation(Place place) {
+
+        // Update all existing media if the new location is different from the last one or there was no last location
+        if ((mUser.getLocation().getId() != null && !mUser.getLocation().getId().equals(place.getId())) ||
+                mUser.getLocation().getId() == null) {
+            for (int i = 0; i < mUser.getShared().size(); i++) {
+                mUser.getShared().get(i).setLatitude(place.getLatLng().latitude);
+                mUser.getShared().get(i).setLongitude(place.getLatLng().longitude);
+                mRef.child("media").child(mUser.getShared().get(i).getId()).setValue(mUser.getShared().get(i));
+            }
+            for (int i = 0; i < mUser.getUnshared().size(); i++) {
+                mUser.getUnshared().get(i).setLatitude(place.getLatLng().latitude);
+                mUser.getUnshared().get(i).setLongitude(place.getLatLng().longitude);
+            }
+        }
+
+        // Set user location
         mUser.getLocation().setAddress(place.getAddress().toString());
         mUser.getLocation().setId(place.getId());
         mUser.getLocation().setLatitude(place.getLatLng().latitude);
         mUser.getLocation().setLongitude(place.getLatLng().longitude);
         mUser.getLocation().setName(place.getName().toString());
-        mRef.child("users").child(mUserId).child("location").setValue(mUser.getLocation());
+        mRef.child("users").child(mUserId).setValue(mUser);
+    }
+
+    // Turn an instagram datum into an inked datum
+    public InkedDatum instagramDatumToInked(Datum datum) {
+        InkedDatum inkedDatum = new InkedDatum();
+        inkedDatum.setCaption(datum.getCaption().getText());
+        inkedDatum.setLink(datum.getLink());
+        inkedDatum.setUserId(mUserId);
+        inkedDatum.setImages(datum.getImages());
+        inkedDatum.setTags(datum.getTags());
+        inkedDatum.setId(datum.getId());
+        if (mUser.getLocation().getId() != null) {
+            inkedDatum.setLatitude(mUser.getLocation().getLatitude());
+            inkedDatum.setLongitude(mUser.getLocation().getLongitude());
+        }
+        return inkedDatum;
+    }
+
+    @Override
+    public void onUnsharedFragmentInteraction(InkedDatum inkedDatum) {
+
+        // Make the share button visible if there's anything to share
+        if (!UserSingleton.getInstance().getDataToShare().isEmpty()) {
+            mShareUnsharedFab.setVisibility(View.VISIBLE);
+        } else {
+            mShareUnsharedFab.setVisibility(View.GONE);
+        }
     }
 }

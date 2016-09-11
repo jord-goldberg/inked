@@ -1,9 +1,12 @@
 package nullworks.com.inked.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Caption {
+public class Caption implements Parcelable {
 
     @SerializedName("created_time")
     @Expose
@@ -38,6 +41,25 @@ public class Caption {
         this.from = from;
         this.id = id;
     }
+
+    protected Caption(Parcel in) {
+        createdTime = in.readString();
+        text = in.readString();
+        from = in.readParcelable(From.class.getClassLoader());
+        id = in.readString();
+    }
+
+    public static final Creator<Caption> CREATOR = new Creator<Caption>() {
+        @Override
+        public Caption createFromParcel(Parcel in) {
+            return new Caption(in);
+        }
+
+        @Override
+        public Caption[] newArray(int size) {
+            return new Caption[size];
+        }
+    };
 
     /**
      *
@@ -111,4 +133,16 @@ public class Caption {
         this.id = id;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(createdTime);
+        parcel.writeString(text);
+        parcel.writeParcelable(from, i);
+        parcel.writeString(id);
+    }
 }

@@ -1,9 +1,12 @@
 package nullworks.com.inked.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class From {
+public class From implements Parcelable {
 
     @SerializedName("username")
     @Expose
@@ -38,6 +41,25 @@ public class From {
         this.type = type;
         this.id = id;
     }
+
+    protected From(Parcel in) {
+        username = in.readString();
+        fullName = in.readString();
+        type = in.readString();
+        id = in.readString();
+    }
+
+    public static final Creator<From> CREATOR = new Creator<From>() {
+        @Override
+        public From createFromParcel(Parcel in) {
+            return new From(in);
+        }
+
+        @Override
+        public From[] newArray(int size) {
+            return new From[size];
+        }
+    };
 
     /**
      *
@@ -111,4 +133,16 @@ public class From {
         this.id = id;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(username);
+        parcel.writeString(fullName);
+        parcel.writeString(type);
+        parcel.writeString(id);
+    }
 }

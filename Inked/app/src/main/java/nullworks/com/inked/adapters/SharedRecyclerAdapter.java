@@ -11,25 +11,29 @@ import com.bumptech.glide.Glide;
 import java.util.ArrayList;
 
 import nullworks.com.inked.R;
-import nullworks.com.inked.UserSingleton;
+import nullworks.com.inked.interfaces.SharedClickListener;
 import nullworks.com.inked.interfaces.UnsharedClickListener;
 import nullworks.com.inked.models.Datum;
 import nullworks.com.inked.models.custom.InkedDatum;
 
 /**
- * Created by joshuagoldberg on 9/5/16.
+ * Created by joshuagoldberg on 9/11/16.
  */
-public class UnsharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
+public class SharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
 
     private static final String TAG = "PortfolioRecyclerAdaper";
 
-    private UnsharedClickListener mListener;
+    private SharedClickListener mListener;
 
     private ArrayList<InkedDatum> mData;
 
+    private MediaViewHolder mClickedViewHolder;
+    private InkedDatum mClickedModel;
+
     private double mMeasuredWidth = 0.0;
 
-    public UnsharedRecyclerAdapter(ArrayList<InkedDatum> data, UnsharedClickListener listener) {
+    public SharedRecyclerAdapter(ArrayList<InkedDatum> data, SharedClickListener listener) {
+        Log.d(TAG, "UnsharedRecyclerAdapter: "+  data.size());
         mData = data;
         mListener = listener;
     }
@@ -39,8 +43,7 @@ public class UnsharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolde
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View parentView = inflater.inflate(R.layout.card_grid, parent, false);
         MediaViewHolder mainViewHolder = new MediaViewHolder(parentView);
-        mainViewHolder.getFab().setImageResource(R.drawable.ic_checked);
-        mainViewHolder.getFab().setClickable(false);
+        mainViewHolder.getFab().setImageResource(R.drawable.ic_edit);
         return mainViewHolder;
     }
 
@@ -69,7 +72,7 @@ public class UnsharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolde
                 .into(holder.getMainImage());
 
         // If this image has been clicked, decrease alpha and show the FAB
-        if (UserSingleton.getInstance().getDataToShare().contains(mData.get(position))) {
+        if (mData.get(position).equals(mClickedModel)) {
             holder.getMainImage().setImageAlpha(125);
             holder.getFab().setVisibility(View.VISIBLE);
         } else {
@@ -77,22 +80,36 @@ public class UnsharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolde
             holder.getFab().setVisibility(View.GONE);
         }
 
-
         holder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if (!UserSingleton.getInstance().getDataToShare().contains(mData.get(position))) {
+                if (mClickedViewHolder != holder) {
+                    if (mClickedViewHolder == null) {
+                        mClickedViewHolder = holder;
+                    } else {
+                        mClickedViewHolder.getMainImage().setImageAlpha(255);
+                        mClickedViewHolder.getFab().setVisibility(View.GONE);
+                        mClickedViewHolder.setClicked(false);
+                        mClickedViewHolder = holder;
+                    }
+                }
+                if (!mData.get(position).equals(mClickedModel)) {
                     holder.getMainImage().setImageAlpha(125);
                     holder.getFab().setVisibility(View.VISIBLE);
-                    UserSingleton.getInstance().getDataToShare().add(mData.get(position));
+                    mClickedModel = mData.get(position);
                 } else {
                     holder.getMainImage().setImageAlpha(255);
                     holder.getFab().setVisibility(View.GONE);
-                    UserSingleton.getInstance().getDataToShare().remove(mData.get(position));
+                    mClickedModel = null;
                 }
+            }
+        });
 
-                mListener.onUnsharedClicked(mData.get(position));
+        holder.getFab().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mListener.onSharedClicked(mData.get(position));
             }
         });
     }

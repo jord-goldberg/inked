@@ -1,9 +1,12 @@
 package nullworks.com.inked.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Thumbnail {
+public class Thumbnail implements Parcelable {
 
     @SerializedName("url")
     @Expose
@@ -33,6 +36,22 @@ public class Thumbnail {
         this.width = width;
         this.height = height;
     }
+
+    protected Thumbnail(Parcel in) {
+        url = in.readString();
+    }
+
+    public static final Creator<Thumbnail> CREATOR = new Creator<Thumbnail>() {
+        @Override
+        public Thumbnail createFromParcel(Parcel in) {
+            return new Thumbnail(in);
+        }
+
+        @Override
+        public Thumbnail[] newArray(int size) {
+            return new Thumbnail[size];
+        }
+    };
 
     /**
      *
@@ -88,4 +107,13 @@ public class Thumbnail {
         this.height = height;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(url);
+    }
 }

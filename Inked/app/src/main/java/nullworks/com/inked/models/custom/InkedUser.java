@@ -24,15 +24,15 @@ public class InkedUser {
     private Location location;
     @SerializedName("shared")
     @Expose
-    private ArrayList<Datum> shared;
+    private ArrayList<InkedDatum> shared;
     @SerializedName("unshared")
     @Expose
-    private ArrayList<Datum> unshared;
+    private ArrayList<InkedDatum> unshared;
 
     public InkedUser() {
     }
 
-    public InkedUser(User user, Location location, String profile, ArrayList<Datum> shared, ArrayList<Datum> unshared) {
+    public InkedUser(User user, Location location, String profile, ArrayList<InkedDatum> shared, ArrayList<InkedDatum> unshared) {
         this.location = location;
         this.profile = profile;
         this.shared = shared;
@@ -56,19 +56,19 @@ public class InkedUser {
         this.profile = profile;
     }
 
-    public ArrayList<Datum> getShared() {
+    public ArrayList<InkedDatum> getShared() {
         return shared;
     }
 
-    public void setShared(ArrayList<Datum> shared) {
+    public void setShared(ArrayList<InkedDatum> shared) {
         this.shared = shared;
     }
 
-    public ArrayList<Datum> getUnshared() {
+    public ArrayList<InkedDatum> getUnshared() {
         return unshared;
     }
 
-    public void setUnshared(ArrayList<Datum> unshared) {
+    public void setUnshared(ArrayList<InkedDatum> unshared) {
         this.unshared = unshared;
     }
 

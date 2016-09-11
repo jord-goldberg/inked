@@ -1,9 +1,12 @@
 package nullworks.com.inked.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class Images {
+public class Images implements Parcelable {
 
     @SerializedName("low_resolution")
     @Expose
@@ -33,6 +36,24 @@ public class Images {
         this.thumbnail = thumbnail;
         this.standardResolution = standardResolution;
     }
+
+    protected Images(Parcel in) {
+        lowResolution = in.readParcelable(LowResolution.class.getClassLoader());
+        thumbnail = in.readParcelable(Thumbnail.class.getClassLoader());
+        standardResolution = in.readParcelable(StandardResolution.class.getClassLoader());
+    }
+
+    public static final Creator<Images> CREATOR = new Creator<Images>() {
+        @Override
+        public Images createFromParcel(Parcel in) {
+            return new Images(in);
+        }
+
+        @Override
+        public Images[] newArray(int size) {
+            return new Images[size];
+        }
+    };
 
     /**
      *
@@ -88,4 +109,15 @@ public class Images {
         this.standardResolution = standardResolution;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeParcelable(lowResolution, i);
+        parcel.writeParcelable(thumbnail, i);
+        parcel.writeParcelable(standardResolution, i);
+    }
 }

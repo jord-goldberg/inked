@@ -1,9 +1,12 @@
 package nullworks.com.inked.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class LowResolution {
+public class LowResolution implements Parcelable {
 
     @SerializedName("url")
     @Expose
@@ -33,6 +36,22 @@ public class LowResolution {
         this.width = width;
         this.height = height;
     }
+
+    protected LowResolution(Parcel in) {
+        url = in.readString();
+    }
+
+    public static final Creator<LowResolution> CREATOR = new Creator<LowResolution>() {
+        @Override
+        public LowResolution createFromParcel(Parcel in) {
+            return new LowResolution(in);
+        }
+
+        @Override
+        public LowResolution[] newArray(int size) {
+            return new LowResolution[size];
+        }
+    };
 
     /**
      *
@@ -88,4 +107,13 @@ public class LowResolution {
         this.height = height;
     }
 
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(url);
+    }
 }

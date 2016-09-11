@@ -14,10 +14,12 @@ import android.view.ViewGroup;
 
 import java.util.ArrayList;
 
+import nullworks.com.inked.adapters.SharedRecyclerAdapter;
 import nullworks.com.inked.adapters.UnsharedRecyclerAdapter;
 import nullworks.com.inked.R;
 import nullworks.com.inked.UserSingleton;
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
+import nullworks.com.inked.interfaces.SharedClickListener;
 import nullworks.com.inked.interfaces.UnsharedClickListener;
 import nullworks.com.inked.models.Datum;
 import nullworks.com.inked.models.custom.InkedDatum;
@@ -26,23 +28,26 @@ import nullworks.com.inked.models.custom.InkedUser;
 /**
  * Created by joshuagoldberg on 9/2/16.
  */
-public class UnsharedFragment extends Fragment implements UnsharedClickListener {
+public class SharedFragment extends Fragment implements SharedClickListener {
 
     private static final String TAG = "UnsharedFragment";
 
-    public static final String FRAGMENT_TITLE = "unshared";
+    public static final String FRAGMENT_TITLE = "shared";
+
+    private FloatingActionButton mFab;
 
     private RecyclerView mRecyclerView;
     private StaggeredGridLayoutManager mLayoutManager;
-    private UnsharedRecyclerAdapter mAdapter;
+    private SharedRecyclerAdapter mAdapter;
 
     private InkedUser mUser;
 
-    private UnsharedFragmentListener mFragmentListener;
+    private ArrayList<InkedDatum> mDataToShare;
 
+    private SharedFragmentListener mFragmentListener;
 
-    public static UnsharedFragment newInstance() {
-        UnsharedFragment fragment = new UnsharedFragment();
+    public static SharedFragment newInstance() {
+        SharedFragment fragment = new SharedFragment();
         Bundle args = new Bundle();
         args.putString(PortfolioPagerAdapter.FRAGMENT_TITLE, FRAGMENT_TITLE);
         fragment.setArguments(args);
@@ -52,18 +57,19 @@ public class UnsharedFragment extends Fragment implements UnsharedClickListener 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        if (context instanceof UnsharedFragmentListener) {
-            mFragmentListener = (UnsharedFragmentListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement ProfileFragmentListener");
-        }
+//        if (context instanceof UnsharedFragmentListener) {
+//            mListener = (UnsharedFragmentListener) context;
+//        } else {
+//            throw new RuntimeException(context.toString()
+//                    + " must implement ProfileFragmentListener");
+//        }
     }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mUser = UserSingleton.getInstance().getUser();
+        mDataToShare = new ArrayList<>();
     }
 
     @Nullable
@@ -73,7 +79,7 @@ public class UnsharedFragment extends Fragment implements UnsharedClickListener 
         mRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.recycler_media);
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        mAdapter = new UnsharedRecyclerAdapter(mUser.getUnshared(), this);
+        mAdapter = new SharedRecyclerAdapter(mUser.getShared(), this);
         return viewRoot;
     }
 
@@ -82,6 +88,7 @@ public class UnsharedFragment extends Fragment implements UnsharedClickListener 
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+
     }
 
     @Override
@@ -90,18 +97,20 @@ public class UnsharedFragment extends Fragment implements UnsharedClickListener 
         mFragmentListener = null;
     }
 
-    public void onButtonPressed(InkedDatum inkedDatum) {
+    public void onButtonPressed() {
         if (mFragmentListener != null) {
-            mFragmentListener.onUnsharedFragmentInteraction(inkedDatum);
+            mFragmentListener.onSharedFragmentInteraction();
         }
     }
 
     @Override
-    public void onUnsharedClicked(InkedDatum inkedDatum) {
-        onButtonPressed(inkedDatum);
+    public void onSharedClicked(InkedDatum inkedDatum) {
+
+      // Expand to image details
     }
 
-    public interface UnsharedFragmentListener {
-        void onUnsharedFragmentInteraction(InkedDatum inkedDatum);
+    public interface SharedFragmentListener {
+        void onSharedFragmentInteraction();
     }
 }
+

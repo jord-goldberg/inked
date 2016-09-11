@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 import nullworks.com.inked.fragments.FbRecyclerFragment;
 import nullworks.com.inked.fragments.ProfileFragment;
-import nullworks.com.inked.fragments.SuggestionFragment;
+import nullworks.com.inked.fragments.SharedFragment;
 import nullworks.com.inked.fragments.UnsharedFragment;
 
 /**
@@ -42,13 +42,11 @@ public class PortfolioPagerAdapter extends FragmentStatePagerAdapter {
     public CharSequence getPageTitle(int position) {
         String title = mFragments.get(position).getArguments().getString(FRAGMENT_TITLE);
         switch (title) {
-            case SuggestionFragment.FRAGMENT_TITLE:
-                return title;
             case ProfileFragment.FRAGMENT_TITLE:
                 return title;
             case UnsharedFragment.FRAGMENT_TITLE:
                 return title;
-            case FbRecyclerFragment.FRAGMENT_TITLE:
+            case SharedFragment.FRAGMENT_TITLE:
                 return title;
             default:
                 return super.getPageTitle(position);

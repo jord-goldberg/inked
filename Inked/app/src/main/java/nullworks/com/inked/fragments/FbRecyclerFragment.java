@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 
 import java.util.ArrayList;
 
@@ -20,6 +21,7 @@ import nullworks.com.inked.adapters.FbRecyclerAdapter;
 import nullworks.com.inked.adapters.MediaViewHolder;
 import nullworks.com.inked.adapters.PortfolioPagerAdapter;
 import nullworks.com.inked.models.Datum;
+import nullworks.com.inked.models.custom.InkedDatum;
 
 /**
  * Created by joshuagoldberg on 9/2/16.
@@ -57,7 +59,7 @@ public class FbRecyclerFragment extends Fragment {
         mRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.recycler_media);
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        mAdapter = new FbRecyclerAdapter(Datum.class, R.layout.card_grid, MediaViewHolder.class, mRef);
+        mAdapter = new FbRecyclerAdapter(InkedDatum.class, R.layout.card_grid, MediaViewHolder.class, mRef);
         return viewRoot;
     }
 
