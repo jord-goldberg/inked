@@ -11,6 +11,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -20,11 +21,20 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.places.Places;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+
+import java.util.HashMap;
 
 import nullworks.com.inked.adapters.MainPagerAdapter;
+import nullworks.com.inked.models.custom.InkedDatum;
 import nullworks.com.inked.transformers.DepthPageTransformer;
 
 public class MainActivity extends AppCompatActivity
@@ -33,6 +43,11 @@ public class MainActivity extends AppCompatActivity
     private static final String TAG = "MainActivity";
 
     public static final int GOOGLE_SIGN_IN = 200;
+
+    private FirebaseAuth mAuth;
+    private DatabaseReference mRef;
+
+    private GoogleApiClient mGoogleApiClient;
 
     private NavigationView mNavigationView;
     private Menu mCategorySubMenu;
@@ -44,8 +59,9 @@ public class MainActivity extends AppCompatActivity
     private TabLayout mTabLayout;
     private MainPagerAdapter mPagerAdapter;
 
-    private FirebaseAuth mAuth;
-    private DatabaseReference mRef;
+    private Query mQuery;
+
+    private HashMap<String, InkedDatum> mQueryMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +76,11 @@ public class MainActivity extends AppCompatActivity
         drawer.setDrawerListener(toggle);
         toggle.syncState();
 
+        mAuth = FirebaseAuth.getInstance();
+        mRef = FirebaseDatabase.getInstance().getReference();
+
+        buildGoogleApiClient();
+
         mNavigationView = (NavigationView) findViewById(R.id.nav_view);
         mNavigationView.setNavigationItemSelectedListener(this);
 
@@ -73,9 +94,59 @@ public class MainActivity extends AppCompatActivity
 
         mViewPager = (ViewPager) findViewById(R.id.main_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
-        mTabLayout.setupWithViewPager(mViewPager, true);
-        mPagerAdapter = new MainPagerAdapter(getFragmentManager(), mCategorySubMenu);
+
+        mQueryMap = new HashMap<>();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkForAuthorizedUser();
+
+        mQuery = mRef.child("media").orderByChild("createdTime").limitToFirst(1000);
+        mQuery.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                InkedDatum inkedDatum = dataSnapshot.getValue(InkedDatum.class);
+                if (!mQueryMap.containsKey(s)){
+                    mQueryMap.put(s, inkedDatum);
+                    UserSingleton.getInstance().getMainQueryResult().add(inkedDatum);
+                }
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                InkedDatum inkedDatum = dataSnapshot.getValue(InkedDatum.class);
+                if (mQueryMap.containsKey(s)){
+                    UserSingleton.getInstance().getMainQueryResult()
+                            .set(UserSingleton.getInstance().getMainQueryResult()
+                                    .indexOf(mQueryMap.put(s, inkedDatum)), inkedDatum);
+                }
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+                UserSingleton.getInstance().getMainQueryResult()
+                        .remove(mQueryMap.remove(dataSnapshot.getKey()));
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
+            }
+        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        mPagerAdapter = new MainPagerAdapter(getFragmentManager(), mCategorySubMenu, mQuery);
         mViewPager.setAdapter(mPagerAdapter);
+        mTabLayout.setupWithViewPager(mViewPager, true);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
         // Add a listener to check Navigation Drawer items as we scroll through them
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
@@ -87,21 +158,6 @@ public class MainActivity extends AppCompatActivity
                 currentItem.setChecked(true);
             }
         });
-
-        mAuth = FirebaseAuth.getInstance();
-        mRef = FirebaseDatabase.getInstance().getReference();
-
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        checkForAuthorizedUser();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
     }
 
     @Override
@@ -121,16 +177,12 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_search:
                 break;
@@ -203,11 +255,20 @@ public class MainActivity extends AppCompatActivity
             } else {
                 // user is not signed in. Maybe just wait for the user to press
                 // "sign in" again, or show a message
-                Toast.makeText(MainActivity.this, "Sign in failed", Toast.LENGTH_SHORT).show();
+                Toast.makeText(mViewPager.getContext(), "Sign in failed", Toast.LENGTH_SHORT).show();
                 //TODO: Make this Snackbar work instead of the above Toast
                 Snackbar.make(mViewPager, "Sign in failed", Snackbar.LENGTH_SHORT);
             }
         }
+    }
+
+    private synchronized void buildGoogleApiClient() {
+        PlacesHelper helper = new PlacesHelper(mGoogleApiClient);
+        mGoogleApiClient = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(helper)
+                .addApi(Places.GEO_DATA_API)
+                .enableAutoManage(this, helper)
+                .build();
     }
 
     public void checkForAuthorizedUser() {

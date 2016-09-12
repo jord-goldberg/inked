@@ -17,10 +17,12 @@ public class UserSingleton {
     private InkedUser mUser;
 
     private ArrayList<InkedDatum> mDataToShare;
+    private ArrayList<InkedDatum> mMainQueryResult;
 
     private UserSingleton() {
         mUser = new InkedUser();
         mDataToShare = new ArrayList<>();
+        mMainQueryResult = new ArrayList<>();
     }
 
     public static UserSingleton getInstance() {
@@ -40,5 +42,9 @@ public class UserSingleton {
 
     public ArrayList<InkedDatum> getDataToShare() {
         return mDataToShare;
+    }
+
+    public ArrayList<InkedDatum> getMainQueryResult() {
+        return mMainQueryResult;
     }
 }

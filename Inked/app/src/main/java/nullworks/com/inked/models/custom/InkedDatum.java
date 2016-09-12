@@ -27,6 +27,9 @@ public class InkedDatum {
     @SerializedName("id")
     @Expose
     private String id;
+    @SerializedName("created_time")
+    @Expose
+    private Long createdTime;
     @SerializedName("latitude")
     @Expose
     private Double latitude;
@@ -48,11 +51,11 @@ public class InkedDatum {
      * @param caption
      * @param id
      * @param images
-     * @param filter
+     * @param createdTime
      * @param latitude
      * @param longitude
      */
-    public InkedDatum(String caption, String link, String userId, Images images, String filter, List<String> tags, String id, Double latitude, Double longitude) {
+    public InkedDatum(String caption, String link, String userId, Images images, List<String> tags, String id, Long createdTime, Double latitude, Double longitude) {
         this.caption = caption;
 
         this.link = link;
@@ -60,6 +63,7 @@ public class InkedDatum {
         this.images = images;
         this.tags = tags;
         this.id = id;
+        this.createdTime = createdTime;
         this.latitude = latitude;
         this.longitude = longitude;
     }
@@ -170,6 +174,24 @@ public class InkedDatum {
      */
     public void setId(String id) {
         this.id = id;
+    }
+
+    /**
+     *
+     * @return
+     * The createdTime
+     */
+    public Long getCreatedTime() {
+        return createdTime;
+    }
+
+    /**
+     *
+     * @param createdTime
+     * The created_time
+     */
+    public void setCreatedTime(Long createdTime) {
+        this.createdTime = createdTime;
     }
 
     /**

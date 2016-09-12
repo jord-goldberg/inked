@@ -6,7 +6,6 @@ import android.support.v13.app.FragmentStatePagerAdapter;
 
 import java.util.ArrayList;
 
-import nullworks.com.inked.fragments.FbRecyclerFragment;
 import nullworks.com.inked.fragments.ProfileFragment;
 import nullworks.com.inked.fragments.SharedFragment;
 import nullworks.com.inked.fragments.UnsharedFragment;

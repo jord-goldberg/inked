@@ -74,8 +74,6 @@ public class PortfolioActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
 
-    private GoogleApiClient mGoogleApiClient;
-
     private ImageView mProfilePic;
     private TextView mFullNameText;
     private TextView mLocationText;
@@ -105,8 +103,6 @@ public class PortfolioActivity extends AppCompatActivity
         mRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mUserId = mAuth.getCurrentUser().getUid();
-
-        buildGoogleApiClient();
 
         mProfilePic = (ImageView) findViewById(R.id.profile_picture);
         mFullNameText = (TextView) findViewById(R.id.fullname_textview);
@@ -253,14 +249,7 @@ public class PortfolioActivity extends AppCompatActivity
     }
 
 
-    private synchronized void buildGoogleApiClient() {
-        PlacesHelper helper = new PlacesHelper(mGoogleApiClient);
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(helper)
-                .addApi(Places.GEO_DATA_API)
-                .enableAutoManage(this, helper)
-                .build();
-    }
+
 
     // gets UserSingleton info from firebase
     public void getUserInfo() {
@@ -465,6 +454,7 @@ public class PortfolioActivity extends AppCompatActivity
         inkedDatum.setImages(datum.getImages());
         inkedDatum.setTags(datum.getTags());
         inkedDatum.setId(datum.getId());
+        inkedDatum.setCreatedTime(-Long.parseLong(datum.getCreatedTime()));
         if (mUser.getLocation().getId() != null) {
             inkedDatum.setLatitude(mUser.getLocation().getLatitude());
             inkedDatum.setLongitude(mUser.getLocation().getLongitude());

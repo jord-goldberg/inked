@@ -12,18 +12,16 @@ import java.util.ArrayList;
 
 import nullworks.com.inked.R;
 import nullworks.com.inked.interfaces.SharedClickListener;
-import nullworks.com.inked.interfaces.UnsharedClickListener;
-import nullworks.com.inked.models.Datum;
 import nullworks.com.inked.models.custom.InkedDatum;
 
 /**
  * Created by joshuagoldberg on 9/11/16.
  */
-public class SharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
+public class TagRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
 
-    private static final String TAG = "SharedRecyclerAdaper";
+    private static final String TAG = "TagRecyclerAdaper";
 
-    private SharedClickListener mListener;
+ private SharedClickListener mListener;
 
     private ArrayList<InkedDatum> mData;
 
@@ -32,7 +30,8 @@ public class SharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder>
 
     private double mMeasuredWidth = 0.0;
 
-    public SharedRecyclerAdapter(ArrayList<InkedDatum> data, SharedClickListener listener) {
+    public TagRecyclerAdapter(ArrayList<InkedDatum> data, SharedClickListener listener) {
+
         mData = data;
         mListener = listener;
     }

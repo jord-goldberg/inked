@@ -88,7 +88,7 @@ public class FlipCardFragment extends Fragment {
                         // Replace any fragments currently in the container view with a
                         // fragment representing the next page (indicated by the
                         // just-incremented currentPage variable).
-                        .replace(R.id.flipcard_container, FbRecyclerFragment.newInstance())
+                        .replace(R.id.flipcard_container, SharedFragment.newInstance())
 
                         // Add this transaction to the back stack, allowing users to press
                         // Back to get to the front of the card.

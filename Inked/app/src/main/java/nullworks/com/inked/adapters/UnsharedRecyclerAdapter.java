@@ -21,7 +21,7 @@ import nullworks.com.inked.models.custom.InkedDatum;
  */
 public class UnsharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder> {
 
-    private static final String TAG = "PortfolioRecyclerAdaper";
+    private static final String TAG = "UnsharedRecyclerAdaper";
 
     private UnsharedClickListener mListener;
 

@@ -17,20 +17,20 @@ import nullworks.com.inked.models.custom.InkedDatum;
 /**
  * Created by joshuagoldberg on 9/6/16.
  */
-public class FbRecyclerAdapter extends FirebaseRecyclerAdapter<InkedDatum, MediaViewHolder> {
+public class QueryRecyclerAdapter extends FirebaseRecyclerAdapter<InkedDatum, MediaViewHolder> {
 
-    private static final String TAG = "FbRecyclerAdapter";
+    private static final String TAG = "QueryRecyclerAdapter";
 
     private MediaViewHolder mClickedViewHolder;
     private InkedDatum mClickedModel;
 
     private double mMeasuredWidth = 0.0;
 
-    public FbRecyclerAdapter(Class<InkedDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, DatabaseReference ref) {
+    public QueryRecyclerAdapter(Class<InkedDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, DatabaseReference ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
     }
 
-    public FbRecyclerAdapter(Class<InkedDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, Query ref) {
+    public QueryRecyclerAdapter(Class<InkedDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, Query ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
     }
 

@@ -7,7 +7,9 @@ import android.app.FragmentManager;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.view.Menu;
 
-import nullworks.com.inked.fragments.FbRecyclerFragment;
+import com.google.firebase.database.Query;
+
+import nullworks.com.inked.fragments.QueryRecyclerFragment;
 
 /**
  * Created by joshuagoldberg on 9/2/16.
@@ -15,15 +17,17 @@ import nullworks.com.inked.fragments.FbRecyclerFragment;
 public class MainPagerAdapter extends FragmentStatePagerAdapter {
 
     private Menu mCategoryMenu;
+    private Query mQuery;
 
-    public MainPagerAdapter(FragmentManager fm, Menu menu) {
+    public MainPagerAdapter(FragmentManager fm, Menu menu, Query query) {
         super(fm);
         mCategoryMenu = menu;
+        mQuery = query;
     }
 
     @Override
     public Fragment getItem(int position) {
-        return FbRecyclerFragment.newInstance();
+        return QueryRecyclerFragment.newInstance(mQuery);
     }
 
     @Override
