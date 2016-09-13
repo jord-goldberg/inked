@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="nullworks.com.inked" >
+    package="nullworks.com.inkfolio">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -10,17 +10,17 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/places_api_key" />
 
         <activity
-            android:name=".MainActivity"
+            android:name="nullworks.com.inkfolio.MainActivity"
             android:configChanges="orientation"
             android:label="@string/app_name"
             android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.NoActionBar" >
+            android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -28,12 +28,19 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".PortfolioActivity"
+            android:name="nullworks.com.inkfolio.PortfolioActivity"
             android:configChanges="orientation"
-            android:label="Inked: Portfolio"
-            android:parentActivityName=".MainActivity"
+            android:label="Ink.folio: Profile"
+            android:parentActivityName="nullworks.com.inkfolio.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
+        <activity
+            android:name="nullworks.com.inkfolio.EditActivity"
+            android:configChanges="orientation"
+            android:label="Ink.folio: Detail"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/Theme.Transparent"/>
     </application>
 
 </manifest>
