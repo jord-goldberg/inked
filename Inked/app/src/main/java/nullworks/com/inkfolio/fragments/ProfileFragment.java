@@ -4,10 +4,12 @@ import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.CardView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -40,14 +42,17 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
     private LinearLayout mInstaLoginLayout;
     private LinearLayout mCustomizeProfileLayout;
 
+    private FloatingActionButton mFab;
+
     CardView mSetLocationCard;
     CardView mInstaLoginCard;
-    CardView mProfileTextCard;
     CardView mInstaUserNameCard;
 
     TextView mSetUpText;
     TextView mInstaUserNameText;
     TextView mProfileText;
+
+    EditText mProfileEditText;
 
     GoogleMap mMap;
     MapFragment mMapFragment;
@@ -77,6 +82,10 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View viewRoot = inflater.inflate(R.layout.fragment_profile, container, false);
         mMapFragment = (MapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        mCustomizeProfileLayout = (LinearLayout) viewRoot.findViewById(R.id.customize_profile_layout);
+        mProfileText = (TextView) viewRoot.findViewById(R.id.profile_text_textview);
+        mProfileEditText = (EditText) viewRoot.findViewById(R.id.profile_text_edittext);
+        mFab = (FloatingActionButton) viewRoot.findViewById(R.id.fab_profile);
 
         // Check to see if profile is complete
         if (mUserFlag != 8 || mUserFlag != 15) { // not complete
@@ -94,13 +103,6 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
         if (mUserFlag == 0 || mUserFlag == 3 || mUserFlag == 7 || mUserFlag == 10) { // no location
             mSetLocationLayout = (LinearLayout) viewRoot.findViewById(R.id.set_location_layout);
             mSetLocationCard = (CardView) viewRoot.findViewById(R.id.set_location_button);
-        }
-        // Check to see if the user has a custom profile
-        if (mUserFlag == 7 || mUserFlag == 10 || mUserFlag == 12 || mUserFlag == 15) { // has profile
-            mProfileTextCard = (CardView) viewRoot.findViewById(R.id.profile_text_card);
-            mProfileText = (TextView) viewRoot.findViewById(R.id.profile_text_textview);
-        } else { // no profile
-            mCustomizeProfileLayout = (LinearLayout) viewRoot.findViewById(R.id.customize_profile_layout);
         }
         return viewRoot;
     }
@@ -134,7 +136,11 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
         // Check to see if the user has a custom profile
         if (mUserFlag == 0 || mUserFlag == 3 || mUserFlag == 5 || mUserFlag == 8) { // no profile
             mCustomizeProfileLayout.setVisibility(View.VISIBLE);
+        } else { // has profile
+            mProfileText.setText(mUser.getProfile());
         }
+
+        mFab.setOnClickListener(this);
     }
 
     @Override
@@ -172,7 +178,24 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
 
     @Override
     public void onClick(View view) {
-        onButtonPressed(view.getId());
+        if (mCustomizeProfileLayout.getVisibility() == View.VISIBLE) {
+            mCustomizeProfileLayout.setVisibility(View.GONE);
+        }
+        if (mProfileText.getVisibility() == View.VISIBLE) {
+            mProfileEditText.setText(mProfileText.getText());
+            mProfileText.setVisibility(View.GONE);
+            mProfileEditText.setVisibility(View.VISIBLE);
+            mFab.setImageResource(R.drawable.ic_save);
+        } else {
+            mProfileText.setText(mProfileEditText.getText().toString());
+            mProfileText.setVisibility(View.VISIBLE);
+            mProfileEditText.setVisibility(View.GONE);
+            mFab.setImageResource(R.drawable.ic_edit);
+            mUser.setProfile(mProfileEditText.getText().toString());
+            if (mProfileEditText.getText().toString().trim().equals("")) {
+                mCustomizeProfileLayout.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     public interface ProfileFragmentListener {

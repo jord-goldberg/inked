@@ -35,6 +35,7 @@ public class EditActivity extends AppCompatActivity {
         mEditDatum = getIntent().getParcelableExtra(INKED_DATUM);
 
         mFab = (FloatingActionButton) findViewById(R.id.fab_flipcard);
+        mFab.setVisibility(View.GONE);
 
         if (savedInstanceState == null) {
             getFragmentManager()

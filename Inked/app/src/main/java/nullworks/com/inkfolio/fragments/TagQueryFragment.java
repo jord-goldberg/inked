@@ -1,6 +1,7 @@
 package nullworks.com.inkfolio.fragments;
 
 import android.app.Fragment;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
@@ -16,16 +17,18 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import nullworks.com.inkfolio.EditActivity;
 import nullworks.com.inkfolio.R;
 import nullworks.com.inkfolio.adapters.MediaViewHolder;
 import nullworks.com.inkfolio.adapters.PortfolioPagerAdapter;
 import nullworks.com.inkfolio.adapters.QueryRecyclerAdapter;
+import nullworks.com.inkfolio.interfaces.SharedClickListener;
 import nullworks.com.inkfolio.models.custom.InkDatum;
 
 /**
  * Created by joshuagoldberg on 9/12/16.
  */
-public class TagQueryFragment extends Fragment {
+public class TagQueryFragment extends Fragment implements SharedClickListener {
 
     private static final String TAG = "TagQueryFragment";
     private static final String CHILD_TAG = "childTag";
@@ -66,7 +69,7 @@ public class TagQueryFragment extends Fragment {
         mRecyclerView = (RecyclerView) viewRoot.findViewById(R.id.recycler_media);
         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
-        mAdapter = new QueryRecyclerAdapter(InkDatum.class, R.layout.card_grid, MediaViewHolder.class, mQuery);
+        mAdapter = new QueryRecyclerAdapter(InkDatum.class, R.layout.card_grid, MediaViewHolder.class, mQuery, this);
         return viewRoot;
     }
 
@@ -81,5 +84,12 @@ public class TagQueryFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         mAdapter.cleanup();
+    }
+
+    @Override
+    public void onSharedClicked(InkDatum inkDatum) {
+        Intent intent = new Intent(getActivity(), EditActivity.class);
+        intent.putExtra(EditActivity.INKED_DATUM, inkDatum);
+        startActivity(intent);
     }
 }

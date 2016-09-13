@@ -354,7 +354,7 @@ public class PortfolioActivity extends AppCompatActivity
                 userFlag += 3;
             if (user.getLocation().getId() != null)
                 userFlag += 5;
-            if (user.getProfile() != null)
+            if (user.getProfile() != null && !user.getProfile().isEmpty())
                 userFlag += 7;
 
             Log.d(TAG, "setLayout: userFlag: " + userFlag);
@@ -376,8 +376,13 @@ public class PortfolioActivity extends AppCompatActivity
 
             // Check to see if profile is able to share media
             if (userFlag == 8 || userFlag == 15) { // is able
-                mFragments.add(mSharedFragment = SharedFragment.newInstance());
-                mFragments.add(mUnsharedFragment = UnsharedFragment.newInstance());
+                // If there is nothing to share, don't add UnsharedFragment
+                if (mUser.getUnshared().isEmpty()) {
+                    mFragments.add(mSharedFragment = SharedFragment.newInstance());
+                } else {
+                    mFragments.add(mSharedFragment = SharedFragment.newInstance());
+                    mFragments.add(mUnsharedFragment = UnsharedFragment.newInstance());
+                }
 
             }
             // Check to see if the user has a set location

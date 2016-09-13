@@ -67,47 +67,47 @@ public class SharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder>
                 .fitCenter()
                 .into(holder.getMainImage());
 
-        // If this image has been clicked, decrease alpha and show the FAB
-        if (mData.get(position).equals(mClickedModel)) {
-            holder.getMainImage().setImageAlpha(125);
-            holder.getFab().setVisibility(View.VISIBLE);
-        } else {
-            holder.getMainImage().setImageAlpha(255);
-            holder.getFab().setVisibility(View.GONE);
-        }
-
-        holder.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                if (mClickedViewHolder != holder) {
-                    if (mClickedViewHolder == null) {
-                        mClickedViewHolder = holder;
-                    } else {
-                        mClickedViewHolder.getMainImage().setImageAlpha(255);
-                        mClickedViewHolder.getFab().setVisibility(View.GONE);
-                        mClickedViewHolder.setClicked(false);
-                        mClickedViewHolder = holder;
-                    }
-                }
-                if (!mData.get(position).equals(mClickedModel)) {
-                    holder.getMainImage().setImageAlpha(125);
-                    holder.getFab().setVisibility(View.VISIBLE);
-                    mClickedModel = mData.get(position);
-                } else {
-                    holder.getMainImage().setImageAlpha(255);
-                    holder.getFab().setVisibility(View.GONE);
-                    mClickedModel = null;
-                }
-            }
-        });
-
-        holder.getFab().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onSharedClicked(mData.get(position));
-            }
-        });
+//        // If this image has been clicked, decrease alpha and show the FAB
+//        if (mData.get(position).equals(mClickedModel)) {
+//            holder.getMainImage().setImageAlpha(125);
+//            holder.getFab().setVisibility(View.VISIBLE);
+//        } else {
+//            holder.getMainImage().setImageAlpha(255);
+//            holder.getFab().setVisibility(View.GONE);
+//        }
+//
+//        holder.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//
+//                if (mClickedViewHolder != holder) {
+//                    if (mClickedViewHolder == null) {
+//                        mClickedViewHolder = holder;
+//                    } else {
+//                        mClickedViewHolder.getMainImage().setImageAlpha(255);
+//                        mClickedViewHolder.getFab().setVisibility(View.GONE);
+//                        mClickedViewHolder.setClicked(false);
+//                        mClickedViewHolder = holder;
+//                    }
+//                }
+//                if (!mData.get(position).equals(mClickedModel)) {
+//                    holder.getMainImage().setImageAlpha(125);
+//                    holder.getFab().setVisibility(View.VISIBLE);
+//                    mClickedModel = mData.get(position);
+//                } else {
+//                    holder.getMainImage().setImageAlpha(255);
+//                    holder.getFab().setVisibility(View.GONE);
+//                    mClickedModel = null;
+//                }
+//            }
+//        });
+//
+//        holder.getFab().setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                mListener.onSharedClicked(mData.get(position));
+//            }
+//        });
     }
 
     @Override

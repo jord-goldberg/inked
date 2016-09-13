@@ -7,6 +7,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
+import nullworks.com.inkfolio.interfaces.SharedClickListener;
 import nullworks.com.inkfolio.models.custom.InkDatum;
 
 /**
@@ -21,12 +22,16 @@ public class QueryRecyclerAdapter extends FirebaseRecyclerAdapter<InkDatum, Medi
 
     private double mMeasuredWidth = 0.0;
 
+    private SharedClickListener mListener;
+
     public QueryRecyclerAdapter(Class<InkDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, DatabaseReference ref) {
         super(modelClass, modelLayout, viewHolderClass, ref);
     }
 
-    public QueryRecyclerAdapter(Class<InkDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, Query ref) {
+    public QueryRecyclerAdapter(Class<InkDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass,
+                                Query ref, SharedClickListener listener) {
         super(modelClass, modelLayout, viewHolderClass, ref);
+        mListener = listener;
     }
 
     @Override
@@ -47,6 +52,11 @@ public class QueryRecyclerAdapter extends FirebaseRecyclerAdapter<InkDatum, Medi
             viewHolder.getMainImage().setMinimumHeight((int) height);
             viewHolder.getMainImage().setMaxHeight((int) height);
         }
+
+        Glide.with(viewHolder.getMainImage().getContext())
+                .load(model.getImages().getLowResolution().getUrl())
+                .fitCenter()
+                .into(viewHolder.getMainImage());
 
         if (model.equals(mClickedModel)) {
             viewHolder.getMainImage().setImageAlpha(125);
@@ -83,15 +93,10 @@ public class QueryRecyclerAdapter extends FirebaseRecyclerAdapter<InkDatum, Medi
             }
         });
 
-        Glide.with(viewHolder.getMainImage().getContext())
-                .load(model.getImages().getLowResolution().getUrl())
-                .fitCenter()
-                .into(viewHolder.getMainImage());
-
         viewHolder.getFab().setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                mListener.onSharedClicked(model);
             }
         });
     }

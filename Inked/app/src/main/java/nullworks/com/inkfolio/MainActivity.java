@@ -105,43 +105,43 @@ public class MainActivity extends AppCompatActivity
         super.onStart();
         checkForAuthorizedUser();
 
-        mQuery = mRef.child("media").orderByChild("createdTime").limitToFirst(1000);
-        mChildListener = new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                InkDatum inkDatum = dataSnapshot.getValue(InkDatum.class);
-                if (!mQueryMap.containsKey(s)){
-                    mQueryMap.put(s, inkDatum);
-                    UserSingleton.getInstance().getMainQueryResult().add(inkDatum);
-                }
-            }
-
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                InkDatum inkDatum = dataSnapshot.getValue(InkDatum.class);
-                if (mQueryMap.containsKey(s)){
-                    UserSingleton.getInstance().getMainQueryResult()
-                            .set(UserSingleton.getInstance().getMainQueryResult()
-                                    .indexOf(mQueryMap.put(s, inkDatum)), inkDatum);
-                }
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-                UserSingleton.getInstance().getMainQueryResult()
-                        .remove(mQueryMap.remove(dataSnapshot.getKey()));
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
-            }
-        };
-
-        mQuery.addChildEventListener(mChildListener);
+//        mQuery = mRef.child("media").orderByChild("createdTime").limitToFirst(1000);
+//        mChildListener = new ChildEventListener() {
+//            @Override
+//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+//                InkDatum inkDatum = dataSnapshot.getValue(InkDatum.class);
+//                if (!mQueryMap.containsKey(s)){
+//                    mQueryMap.put(s, inkDatum);
+//                    UserSingleton.getInstance().getMainQueryResult().add(inkDatum);
+//                }
+//            }
+//
+//            @Override
+//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+//                InkDatum inkDatum = dataSnapshot.getValue(InkDatum.class);
+//                if (mQueryMap.containsKey(s)){
+//                    UserSingleton.getInstance().getMainQueryResult()
+//                            .set(UserSingleton.getInstance().getMainQueryResult()
+//                                    .indexOf(mQueryMap.put(s, inkDatum)), inkDatum);
+//                }
+//            }
+//
+//            @Override
+//            public void onChildRemoved(DataSnapshot dataSnapshot) {
+//                UserSingleton.getInstance().getMainQueryResult()
+//                        .remove(mQueryMap.remove(dataSnapshot.getKey()));
+//            }
+//
+//            @Override
+//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+//
+//            @Override
+//            public void onCancelled(DatabaseError databaseError) {
+//                Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
+//            }
+//        };
+//
+//        mQuery.addChildEventListener(mChildListener);
     }
 
     @Override
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onStop() {
         super.onStop();
-        mQuery.removeEventListener(mChildListener);
+//        mQuery.removeEventListener(mChildListener);
     }
 
     @Override
@@ -180,21 +180,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_search:
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.action_search:
+//                break;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -261,8 +261,6 @@ public class MainActivity extends AppCompatActivity
                 // user is not signed in. Maybe just wait for the user to press
                 // "sign in" again, or show a message
                 Toast.makeText(mViewPager.getContext(), "Sign in failed", Toast.LENGTH_SHORT).show();
-                //TODO: Make this Snackbar work instead of the above Toast
-                Snackbar.make(mViewPager, "Sign in failed", Snackbar.LENGTH_SHORT);
             }
         }
     }
