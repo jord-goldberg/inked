@@ -119,7 +119,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <nullworks.com.inked.CircleCardView
+        <nullworks.com.inkfolio.CircleCardView
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_marginLeft="@dimen/activity_horizontal_margin"
@@ -130,9 +130,10 @@
             <ImageView
                 android:id="@+id/profile_picture"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="match_parent"
+                android:background="@drawable/ic_profile" />
 
-        </nullworks.com.inked.CircleCardView>
+        </nullworks.com.inkfolio.CircleCardView>
 
         <View
             android:layout_width="0dp"
