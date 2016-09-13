@@ -186,7 +186,7 @@ public class PortfolioActivity extends AppCompatActivity
                             @Override
                             public void onDismissed(Snackbar snackbar, int event) {
                                 super.onDismissed(snackbar, event);
-                                if (event == DISMISS_EVENT_TIMEOUT) {
+                                if (event != DISMISS_EVENT_ACTION) {
                                     UserSingleton.getInstance().getDataToShare().clear();
                                 }
                             }
@@ -376,13 +376,15 @@ public class PortfolioActivity extends AppCompatActivity
 
             // Check to see if profile is able to share media
             if (userFlag == 8 || userFlag == 15) { // is able
-                // If there is nothing to share, don't add UnsharedFragment
-                if (mUser.getUnshared().isEmpty()) {
-                    mFragments.add(mSharedFragment = SharedFragment.newInstance());
-                } else {
-                    mFragments.add(mSharedFragment = SharedFragment.newInstance());
-                    mFragments.add(mUnsharedFragment = UnsharedFragment.newInstance());
-                }
+//                // If there is nothing to share, don't add UnsharedFragment
+//                if (mUser.getUnshared().isEmpty()) {
+//                    mFragments.add(mSharedFragment = SharedFragment.newInstance());
+//                } else {
+//                    mFragments.add(mSharedFragment = SharedFragment.newInstance());
+//                    mFragments.add(mUnsharedFragment = UnsharedFragment.newInstance());
+//                }
+                mFragments.add(mSharedFragment = SharedFragment.newInstance());
+                mFragments.add(mUnsharedFragment = UnsharedFragment.newInstance());
 
             }
             // Check to see if the user has a set location
@@ -537,9 +539,46 @@ public class PortfolioActivity extends AppCompatActivity
     }
 
     @Override
-    public void onSharedFragmentInteraction(InkDatum inkDatum) {
-        Intent intent = new Intent(PortfolioActivity.this, EditActivity.class);
-        intent.putExtra(EditActivity.INKED_DATUM, inkDatum);
-        startActivity(intent);
+    public void onSharedFragmentInteraction(final InkDatum inkDatum) {
+
+        mUser.getShared().remove(inkDatum);
+        mUser.getUnshared().add(inkDatum);
+        mUnsharedFragment.notifyDataSetChanged();
+        mSharedFragment.notifyDataSetChanged();
+
+        Snackbar.make(mCoordinatorLayout, "Photo unshared", Snackbar.LENGTH_SHORT)
+
+                .setAction("UNDO", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        mUser.getUnshared().remove(inkDatum);
+                        mUser.getShared().add(0, inkDatum);
+                        mUnsharedFragment.notifyDataSetChanged();
+                        mSharedFragment.notifyDataSetChanged();
+                    }
+                })
+
+                .setCallback(new Snackbar.Callback() {
+                    @Override
+                    public void onDismissed(Snackbar snackbar, int event) {
+                        super.onDismissed(snackbar, event);
+                        if (event != DISMISS_EVENT_ACTION) {
+
+                            mRef.child("media")
+                                    .child(inkDatum.getId())
+                                    .setValue(null);
+
+                            for (int j = 0; j < inkDatum.getTags().size(); j++) {
+                                mRef.child("tags")
+                                        .child(inkDatum.getTags().get(j))
+                                        .child(inkDatum.getId())
+                                        .setValue(null);
+                            }
+                        }
+                    }
+                })
+                .show();
     }
+
 }
