@@ -1,10 +1,5 @@
 # Ink.folio
 
-<p align="center">
-  <img src="./screenshots/Screenshot_20160912-141737.png">
-  <img src="./screenshots/Screenshot_20160912-141930.png">
-</p>
-
 Ink.folio is a portfolio app for **tattoo** artists and recipients alike. It allows users to import their photos from Instagram, tag them with a location, and share them with the larger tattoo enthusiast community. Using a realtime database, the images become searchable by tag. In future implementations, the images will be searchable by location. It's my hope that this app will help people who are looking to get a tattoo connect with an artisit nearby whose body of work they have already seen.
 
 ---
@@ -49,3 +44,8 @@ Some essential functionality is still missing which will be implemented in the n
 * Ablity to change set user location
 * Searching tattoos by location
 * Editing image tags
+
+<p align="center">
+  <img src="./screenshots/Screenshot_20160912-141737.png">
+  <img src="./screenshots/Screenshot_20160912-141930.png">
+</p>
