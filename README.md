@@ -51,6 +51,6 @@ Some essential functionality is still missing which will be implemented in the n
 * Editing image tags
 
 <p align="center">
-  <img src="./screenshots/Screenshot_20160912-141737.png">
-  <img src="./screenshots/Screenshot_20160912-141930.png">
+  <img src="./screenshots/Screenshot_20160912-141737.png" width="200">
+  <img src="./screenshots/Screenshot_20160912-141930.png" width="200">
 </p>
