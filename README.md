@@ -1,4 +1,4 @@
-# Inkfolio
+# Ink.folio
 
 <p align="left">
   <img src="./screenshots/Screenshot_20160912-141930.png" width="300">
@@ -7,18 +7,18 @@
 
 https://play.google.com/store/apps/details?id=nullworks.com.inkfolio&ah=AiLEV8GZG4h3BcYU5oX__NMMiHI
 
-Inkfolio is a portfolio app for **tattoo** artists and recipients alike. It allows users to import their photos from Instagram, tag them with a location, and share them with the larger tattoo enthusiast community. Using a realtime database, the images become searchable by tag. In future implementations, the images will be searchable by location. It's my hope that this app will help people who are looking to get a tattoo connect with an artisit nearby whose body of work they have already seen.
+Ink.folio is a portfolio app for **tattoo** artists and recipients alike. It allows users to import their photos from Instagram, tag them with a location, and share them with the larger tattoo enthusiast community. Using a realtime database, the images become searchable by tag. In future implementations, the images will be searchable by location. It's my hope that this app will help people who are looking to get a tattoo connect with an artisit nearby whose body of work they have already seen.
 
 ---
 
 
 ### Technical Details
 
-Inkfolio uses Retrofit to create POJOs from the data returned by Instagram API calls. Important fields are then parsed and assigned to custom POJOs which are then stored in a Firebase real-time database. 
+Ink.folio uses Retrofit to create POJOs from the data returned by Instagram API calls. Important fields are then parsed and assigned to custom POJOs which are then stored in a Firebase real-time database. 
 
 The database access is only granted after signing in and authorization with a Google account using Firebase UI. The database indexes values correspodning to time of creation, latitude, and longitude associated with each datum. This allows Firebase RecyclerAdapters to display images efficiently according to query parameters. 
 
-The latitude and longitude information is gotten during Inkfolio account creation using a Google Places autocomplete widget which returns city-level information. This information is attached to each photo imported from Instagram.
+The latitude and longitude information is gotten during Ink.folio account creation using a Google Places autocomplete widget which returns city-level information. This information is attached to each photo imported from Instagram.
 
 This all happens in a beautiful UI designed to highlight the tattoos, and which follows Material Design guidelines.
 
