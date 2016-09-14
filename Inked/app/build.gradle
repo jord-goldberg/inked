@@ -8,8 +8,8 @@ android {
         applicationId "nullworks.com.inkfolio"
         minSdkVersion 19
         targetSdkVersion 24
-        versionCode 1
-        versionName "1.0 Alpha"
+        versionCode 3
+        versionName "1.2 Alpha"
     }
     buildTypes {
         release {

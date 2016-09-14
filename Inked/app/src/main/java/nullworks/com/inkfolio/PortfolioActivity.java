@@ -323,6 +323,9 @@ public class PortfolioActivity extends AppCompatActivity
                 if (mUser.getUser() == null) {
                     mUser.setUser(new User());
                 }
+                if (mUser.getProfile() == null) {
+                    mUser.setProfile("");
+                }
                 if (mUser.getUnshared() == null) {
                     mUser.setUnshared(new ArrayList<InkDatum>());
                 }
@@ -354,7 +357,7 @@ public class PortfolioActivity extends AppCompatActivity
                 userFlag += 3;
             if (user.getLocation().getId() != null)
                 userFlag += 5;
-            if (user.getProfile() != null && !user.getProfile().isEmpty())
+            if (!user.getProfile().isEmpty())
                 userFlag += 7;
 
             Log.d(TAG, "setLayout: userFlag: " + userFlag);
