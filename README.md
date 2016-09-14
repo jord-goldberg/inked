@@ -1,5 +1,7 @@
 # Ink.folio
 
+https://play.google.com/store/apps/details?id=nullworks.com.inkfolio&ah=AiLEV8GZG4h3BcYU5oX__NMMiHI
+
 Ink.folio is a portfolio app for **tattoo** artists and recipients alike. It allows users to import their photos from Instagram, tag them with a location, and share them with the larger tattoo enthusiast community. Using a realtime database, the images become searchable by tag. In future implementations, the images will be searchable by location. It's my hope that this app will help people who are looking to get a tattoo connect with an artisit nearby whose body of work they have already seen.
 
 ---
@@ -30,6 +32,9 @@ This all happens in a beautiful UI designed to highlight the tattoos, and which 
 My general approach was lacking in the recommended user research and user stories. Instead, I believed that an initial application should have a design foundation based on a novel creative impetus. Following from this, I designed the application following what I believed to be essential. At every day's end I would take note of unfinished features I was working on and every morning I would lay out a plan for the feature I'd be working on that day.
 
 My plan for the future, once the alpha is at a reasonable place, is to distribute the app to real tattoo artists and at that point conduct user research and craft user storeis based on real people and feedback
+
+Here's a slideshow covering my thoughts and initial research in the very early stages of the project:
+https://docs.google.com/presentation/d/10C0ILfPfHPp5Z10yfNufnOcihaB08brTTPoBy4BuprA/edit?usp=sharing
 
 ---
 
