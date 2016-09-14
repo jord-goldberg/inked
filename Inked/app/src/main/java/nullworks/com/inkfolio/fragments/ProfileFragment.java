@@ -178,23 +178,29 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
 
     @Override
     public void onClick(View view) {
-        if (mCustomizeProfileLayout.getVisibility() == View.VISIBLE) {
-            mCustomizeProfileLayout.setVisibility(View.GONE);
-        }
-        if (mProfileText.getVisibility() == View.VISIBLE) {
-            mProfileEditText.setText(mProfileText.getText());
-            mProfileText.setVisibility(View.GONE);
-            mProfileEditText.setVisibility(View.VISIBLE);
-            mFab.setImageResource(R.drawable.ic_save);
-        } else {
-            mProfileText.setText(mProfileEditText.getText().toString());
-            mProfileText.setVisibility(View.VISIBLE);
-            mProfileEditText.setVisibility(View.GONE);
-            mFab.setImageResource(R.drawable.ic_edit);
-            mUser.setProfile(mProfileEditText.getText().toString());
-            if (mProfileEditText.getText().toString().trim().equals("")) {
-                mCustomizeProfileLayout.setVisibility(View.VISIBLE);
-            }
+        switch (view.getId()) {
+            case R.id.fab_profile:
+                if (mCustomizeProfileLayout.getVisibility() == View.VISIBLE) {
+                    mCustomizeProfileLayout.setVisibility(View.GONE);
+                }
+                if (mProfileText.getVisibility() == View.VISIBLE) {
+                    mProfileEditText.setText(mProfileText.getText());
+                    mProfileText.setVisibility(View.GONE);
+                    mProfileEditText.setVisibility(View.VISIBLE);
+                    mFab.setImageResource(R.drawable.ic_save);
+                } else {
+                    mProfileText.setText(mProfileEditText.getText().toString());
+                    mProfileText.setVisibility(View.VISIBLE);
+                    mProfileEditText.setVisibility(View.GONE);
+                    mFab.setImageResource(R.drawable.ic_edit);
+                    mUser.setProfile(mProfileEditText.getText().toString());
+                    if (mProfileEditText.getText().toString().trim().equals("")) {
+                        mCustomizeProfileLayout.setVisibility(View.VISIBLE);
+                    }
+                }
+                break;
+            default:
+                mListener.onProfileFragmentInteraction(view.getId());
         }
     }
 
