@@ -1,8 +1,8 @@
 # Ink.folio
 
 <p align="left">
-  <img src="./screenshots/Screenshot_20160912-141737.png" width="300">
   <img src="./screenshots/Screenshot_20160912-141930.png" width="300">
+  <img src="./screenshots/Screenshot_20160912-141737.png" width="300">
 </p>
 
 https://play.google.com/store/apps/details?id=nullworks.com.inkfolio&ah=AiLEV8GZG4h3BcYU5oX__NMMiHI
