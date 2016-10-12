@@ -3,9 +3,11 @@ package nullworks.com.inkfolio.fragments;
 import android.app.Fragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -32,6 +34,8 @@ public class SharedFragment extends Fragment implements SharedClickListener {
     private SharedRecyclerAdapter mAdapter;
 
     private InkUser mUser;
+
+    private Parcelable mLayoutState;
 
     private SharedFragmentListener mFragmentListener;
 
@@ -77,6 +81,17 @@ public class SharedFragment extends Fragment implements SharedClickListener {
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
 
+        if(mLayoutState != null) {
+            Log.d(TAG, "onViewCreated: ");
+            mLayoutManager.onRestoreInstanceState(mLayoutState);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "onPause: ");
+        mLayoutState = mLayoutManager.onSaveInstanceState();
     }
 
     @Override
@@ -91,13 +106,27 @@ public class SharedFragment extends Fragment implements SharedClickListener {
         }
     }
 
-    public void notifyDataSetChanged() {
-        mAdapter.notifyDataSetChanged();
-    }
-
     @Override
     public void onSharedClicked(InkDatum inkDatum) {
         onButtonPressed(inkDatum);
+    }
+
+    public void addDatum(InkDatum inkDatum) {
+        for (int i = 0; i < mUser.getShared().size(); i++) {
+            if (inkDatum.getCreatedTime() < mUser.getShared().get(i).getCreatedTime()) {
+                mUser.getShared().add(i, inkDatum);
+                mAdapter.notifyItemInserted(i);
+                return;
+            }
+        }
+        mUser.getShared().add(inkDatum);
+        mAdapter.notifyItemInserted(mUser.getShared().size()-1);
+    }
+
+    public void removeDatum(InkDatum inkDatum) {
+        int position = mUser.getShared().indexOf(inkDatum);
+        mUser.getShared().remove(inkDatum);
+        mAdapter.notifyItemRemoved(position);
     }
 
     public interface SharedFragmentListener {

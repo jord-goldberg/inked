@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context=".EditActivity">
+    tools:context=".DetailActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -22,7 +22,10 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_flipcard" />
+    <android.support.v4.view.ViewPager
+        android:id="@+id/detail_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab_flipcard"
@@ -30,7 +33,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|right"
         android:layout_margin="@dimen/fab_margin"
-        android:src="@drawable/ic_save"
+        android:src="@drawable/ic_flip"
         android:theme="@style/AppTheme.AppBarOverlay"/>
 
 </android.support.design.widget.CoordinatorLayout>

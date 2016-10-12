@@ -6,9 +6,16 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import nullworks.com.inkfolio.adapters.UnsharedRecyclerAdapter;
 import nullworks.com.inkfolio.R;
@@ -32,6 +39,8 @@ public class UnsharedFragment extends Fragment implements UnsharedClickListener 
     private UnsharedRecyclerAdapter mAdapter;
 
     private InkUser mUser;
+
+    private Query mQuery;
 
     private UnsharedFragmentListener mFragmentListener;
 
@@ -90,8 +99,24 @@ public class UnsharedFragment extends Fragment implements UnsharedClickListener 
         }
     }
 
-    public void notifyDataSetChanged() {
-        mAdapter.notifyDataSetChanged();
+    public void addDatum(InkDatum inkDatum) {
+        for (int i = 0; i < mUser.getUnshared().size(); i++) {
+            if (inkDatum.getCreatedTime() > mUser.getUnshared().get(i).getCreatedTime()) {
+                Log.d(TAG, "addDatum: position:" + i);
+                mUser.getUnshared().add(i, inkDatum);
+                mAdapter.notifyItemInserted(i);
+                return;
+            }
+        }
+        Log.d(TAG, "addDatum: position:" + (mUser.getUnshared().size()-1));
+        mUser.getUnshared().add(inkDatum);
+        mAdapter.notifyItemInserted(mUser.getUnshared().size()-1);
+    }
+
+    public void removeDatum(InkDatum inkDatum) {
+        int position = mUser.getUnshared().indexOf(inkDatum);
+        mUser.getUnshared().remove(inkDatum);
+        mAdapter.notifyItemRemoved(position);
     }
 
     @Override

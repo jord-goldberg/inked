@@ -1,6 +1,7 @@
 package nullworks.com.inkfolio;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import nullworks.com.inkfolio.models.custom.InkDatum;
 import nullworks.com.inkfolio.models.custom.InkUser;
@@ -10,12 +11,12 @@ import nullworks.com.inkfolio.models.custom.InkUser;
  */
 public class UserSingleton {
 
-    private static UserSingleton sInstance = null;
-
     private InkUser mUser;
 
     private ArrayList<InkDatum> mDataToShare;
     private ArrayList<InkDatum> mMainQueryResult;
+
+    private static UserSingleton sInstance;
 
     private UserSingleton() {
         mUser = new InkUser();

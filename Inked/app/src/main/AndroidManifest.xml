@@ -34,13 +34,6 @@
             android:parentActivityName="nullworks.com.inkfolio.MainActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.NoActionBar" />
-        <activity
-            android:name="nullworks.com.inkfolio.EditActivity"
-            android:configChanges="orientation"
-            android:label="Ink.folio: Detail"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.Transparent"/>
     </application>
 
 </manifest>

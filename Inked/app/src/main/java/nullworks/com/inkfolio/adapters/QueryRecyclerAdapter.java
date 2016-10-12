@@ -1,12 +1,16 @@
 package nullworks.com.inkfolio.adapters;
 
 import android.view.View;
+import android.view.animation.AnimationSet;
+import android.view.animation.AnimationUtils;
 
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.Query;
 
+import nullworks.com.inkfolio.R;
+import nullworks.com.inkfolio.interfaces.QueryClickListener;
 import nullworks.com.inkfolio.interfaces.SharedClickListener;
 import nullworks.com.inkfolio.models.custom.InkDatum;
 
@@ -22,20 +26,22 @@ public class QueryRecyclerAdapter extends FirebaseRecyclerAdapter<InkDatum, Medi
 
     private double mMeasuredWidth = 0.0;
 
-    private SharedClickListener mListener;
+    private QueryClickListener mListener;
 
-    public QueryRecyclerAdapter(Class<InkDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass, DatabaseReference ref) {
+    public QueryRecyclerAdapter(Class<InkDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass,
+                                DatabaseReference ref, QueryClickListener listener) {
         super(modelClass, modelLayout, viewHolderClass, ref);
+        mListener = listener;
     }
 
     public QueryRecyclerAdapter(Class<InkDatum> modelClass, int modelLayout, Class<MediaViewHolder> viewHolderClass,
-                                Query ref, SharedClickListener listener) {
+                                Query ref, QueryClickListener listener) {
         super(modelClass, modelLayout, viewHolderClass, ref);
         mListener = listener;
     }
 
     @Override
-    protected void populateViewHolder(final MediaViewHolder viewHolder, final InkDatum model, int position) {
+    protected void populateViewHolder(final MediaViewHolder viewHolder, final InkDatum model, final int position) {
 
         // Find the measured width of the imageView; calculate the corresponding height & set it
         if (mMeasuredWidth == 0.0) {
@@ -58,45 +64,10 @@ public class QueryRecyclerAdapter extends FirebaseRecyclerAdapter<InkDatum, Medi
                 .fitCenter()
                 .into(viewHolder.getMainImage());
 
-        if (model.equals(mClickedModel)) {
-            viewHolder.getMainImage().setImageAlpha(125);
-            viewHolder.getFab().setVisibility(View.VISIBLE);
-        } else {
-            viewHolder.getMainImage().setImageAlpha(255);
-            viewHolder.getFab().setVisibility(View.GONE);
-        }
-
         viewHolder.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                if (mClickedViewHolder != viewHolder) {
-                    if (mClickedViewHolder == null) {
-                        mClickedViewHolder = viewHolder;
-                    } else {
-                        mClickedViewHolder.getMainImage().setImageAlpha(255);
-                        mClickedViewHolder.getFab().setVisibility(View.GONE);
-                        mClickedViewHolder.setClicked(false);
-                        mClickedViewHolder = viewHolder;
-                    }
-                }
-
-                if (!model.equals(mClickedModel)) {
-                    viewHolder.getMainImage().setImageAlpha(125);
-                    viewHolder.getFab().setVisibility(View.VISIBLE);
-                    mClickedModel = model;
-                } else {
-                    viewHolder.getMainImage().setImageAlpha(255);
-                    viewHolder.getFab().setVisibility(View.GONE);
-                    mClickedModel = null;
-                }
-            }
-        });
-
-        viewHolder.getFab().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mListener.onSharedClicked(model);
+                mListener.onQueryItemClicked(viewHolder.getMainImage(), model);
             }
         });
     }

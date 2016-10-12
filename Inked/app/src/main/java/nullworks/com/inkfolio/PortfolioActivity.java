@@ -1,5 +1,7 @@
 package nullworks.com.inkfolio;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Intent;
@@ -99,6 +101,8 @@ public class PortfolioActivity extends AppCompatActivity
     private String mUserId;
     private String mAccessToken;
 
+    private int mShortAnimationDuration;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -123,6 +127,8 @@ public class PortfolioActivity extends AppCompatActivity
         mFragments = new ArrayList<>();
 
         mAccessToken = getSharedPreferences(SHARED_PREFS, MODE_PRIVATE).getString(ACCESS_TOKEN, null);
+
+        mShortAnimationDuration = getResources().getInteger(android.R.integer.config_shortAnimTime);
     }
 
     @Override
@@ -155,14 +161,22 @@ public class PortfolioActivity extends AppCompatActivity
         mShareUnsharedFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mShareUnsharedFab.setVisibility(View.GONE);
 
-                for (int i = 0; i < UserSingleton.getInstance().getDataToShare().size(); i++) {
-                    mUser.getShared().add(UserSingleton.getInstance().getDataToShare().get(i));
-                    mUser.getUnshared().remove(UserSingleton.getInstance().getDataToShare().get(i));
+                mShareUnsharedFab.animate()
+                        .alpha(0f)
+                        .setDuration(mShortAnimationDuration)
+                        .setListener(new AnimatorListenerAdapter() {
+                            @Override
+                            public void onAnimationEnd(Animator animation) {
+                                super.onAnimationEnd(animation);
+                                mShareUnsharedFab.setVisibility(View.GONE);
+                            }
+                        });
+
+                for (InkDatum inkDatum: UserSingleton.getInstance().getDataToShare()) {
+                    mSharedFragment.addDatum(inkDatum);
+                    mUnsharedFragment.removeDatum(inkDatum);
                 }
-                mUnsharedFragment.notifyDataSetChanged();
-                mSharedFragment.notifyDataSetChanged();
 
                 Snackbar.make(mCoordinatorLayout, UserSingleton.getInstance()
                         .getDataToShare().size() + " photos shared", Snackbar.LENGTH_SHORT)
@@ -172,13 +186,15 @@ public class PortfolioActivity extends AppCompatActivity
                             public void onClick(View view) {
                                 if (mViewPager.getCurrentItem() == 1) {
                                     mShareUnsharedFab.setVisibility(View.VISIBLE);
+                                    mShareUnsharedFab.animate()
+                                            .alpha(1f)
+                                            .setDuration(mShortAnimationDuration);
+
                                 }
-                                for (int i = 0; i < UserSingleton.getInstance().getDataToShare().size(); i++) {
-                                    mUser.getUnshared().add(0, UserSingleton.getInstance().getDataToShare().get(i));
-                                    mUser.getShared().remove(UserSingleton.getInstance().getDataToShare().get(i));
+                                for (InkDatum inkDatum: UserSingleton.getInstance().getDataToShare()) {
+                                    mSharedFragment.removeDatum(inkDatum);
+                                    mUnsharedFragment.addDatum(inkDatum);
                                 }
-                                mUnsharedFragment.notifyDataSetChanged();
-                                mSharedFragment.notifyDataSetChanged();
                             }
                         })
 
@@ -400,6 +416,7 @@ public class PortfolioActivity extends AppCompatActivity
             mPagerAdapter = new PortfolioPagerAdapter(getFragmentManager(), mFragments);
             mViewPager.setAdapter(mPagerAdapter);
             mViewPager.setPageTransformer(true, new ZoomOutPageTransformer());
+            mViewPager.setOffscreenPageLimit(2);
             mTabLayout.setupWithViewPager(mViewPager, true);
         }
     }
@@ -536,18 +553,28 @@ public class PortfolioActivity extends AppCompatActivity
         // Make the share button visible if there's anything to share
         if (!UserSingleton.getInstance().getDataToShare().isEmpty()) {
             mShareUnsharedFab.setVisibility(View.VISIBLE);
+            mShareUnsharedFab.animate()
+                    .alpha(1f)
+                    .setDuration(mShortAnimationDuration)
+                    .setListener(null);
         } else {
-            mShareUnsharedFab.setVisibility(View.GONE);
+            mShareUnsharedFab.animate()
+                    .alpha(0f)
+                    .setDuration(mShortAnimationDuration)
+                    .setListener(new AnimatorListenerAdapter() {
+                        @Override
+                        public void onAnimationEnd(Animator animation) {
+                            mShareUnsharedFab.setVisibility(View.GONE);
+                        }
+                    });
         }
     }
 
     @Override
     public void onSharedFragmentInteraction(final InkDatum inkDatum) {
 
-        mUser.getShared().remove(inkDatum);
-        mUser.getUnshared().add(inkDatum);
-        mUnsharedFragment.notifyDataSetChanged();
-        mSharedFragment.notifyDataSetChanged();
+        mSharedFragment.removeDatum(inkDatum);
+        mUnsharedFragment.addDatum(inkDatum);
 
         Snackbar.make(mCoordinatorLayout, "Photo unshared", Snackbar.LENGTH_SHORT)
 
@@ -555,10 +582,8 @@ public class PortfolioActivity extends AppCompatActivity
                     @Override
                     public void onClick(View view) {
 
-                        mUser.getUnshared().remove(inkDatum);
-                        mUser.getShared().add(0, inkDatum);
-                        mUnsharedFragment.notifyDataSetChanged();
-                        mSharedFragment.notifyDataSetChanged();
+                        mSharedFragment.addDatum(inkDatum);
+                        mUnsharedFragment.removeDatum(inkDatum);
                     }
                 })
 

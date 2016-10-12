@@ -32,4 +32,48 @@
 
     <include layout="@layout/content_main" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layoutDirection="rtl">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_nav_profile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:src="@drawable/ic_cloud_upload"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:rippleColor="#616161" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_nav_pr"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:src="@drawable/ic_cloud_upload"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:fabSize="mini"
+            app:rippleColor="#616161" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_nav_profi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|right"
+            android:layout_marginRight="@dimen/activity_horizontal_margin"
+            android:layout_marginBottom="@dimen/activity_vertical_margin"
+            android:src="@drawable/ic_cloud_upload"
+            android:theme="@style/AppTheme.AppBarOverlay"
+            app:fabSize="mini"
+            app:rippleColor="#616161" />
+
+
+    </LinearLayout>
+
 </android.support.design.widget.CoordinatorLayout>

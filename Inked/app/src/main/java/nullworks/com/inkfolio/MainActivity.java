@@ -2,6 +2,7 @@ package nullworks.com.inkfolio;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
@@ -34,15 +35,17 @@ import com.google.firebase.database.Query;
 import java.util.HashMap;
 
 import nullworks.com.inkfolio.adapters.MainPagerAdapter;
+import nullworks.com.inkfolio.interfaces.QueryFragmentListener;
 import nullworks.com.inkfolio.models.custom.InkDatum;
 import nullworks.com.inkfolio.transformers.DepthPageTransformer;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, QueryFragmentListener{
 
     private static final String TAG = "MainActivity";
 
     public static final int GOOGLE_SIGN_IN = 200;
+    public static final int DETAIL_REQUEST = 110;
 
     private FirebaseAuth mAuth;
     private DatabaseReference mRef;
@@ -58,12 +61,6 @@ public class MainActivity extends AppCompatActivity
     private ViewPager mViewPager;
     private TabLayout mTabLayout;
     private MainPagerAdapter mPagerAdapter;
-
-    private Query mQuery;
-
-    private ChildEventListener mChildListener;
-
-    private HashMap<String, InkDatum> mQueryMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -96,62 +93,13 @@ public class MainActivity extends AppCompatActivity
 
         mViewPager = (ViewPager) findViewById(R.id.main_container);
         mTabLayout = (TabLayout) findViewById(R.id.tabs);
-
-        mQueryMap = new HashMap<>();
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        checkForAuthorizedUser();
-
-//        mQuery = mRef.child("media").orderByChild("createdTime").limitToFirst(1000);
-//        mChildListener = new ChildEventListener() {
-//            @Override
-//            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-//                InkDatum inkDatum = dataSnapshot.getValue(InkDatum.class);
-//                if (!mQueryMap.containsKey(s)){
-//                    mQueryMap.put(s, inkDatum);
-//                    UserSingleton.getInstance().getMainQueryResult().add(inkDatum);
-//                }
-//            }
-//
-//            @Override
-//            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-//                InkDatum inkDatum = dataSnapshot.getValue(InkDatum.class);
-//                if (mQueryMap.containsKey(s)){
-//                    UserSingleton.getInstance().getMainQueryResult()
-//                            .set(UserSingleton.getInstance().getMainQueryResult()
-//                                    .indexOf(mQueryMap.put(s, inkDatum)), inkDatum);
-//                }
-//            }
-//
-//            @Override
-//            public void onChildRemoved(DataSnapshot dataSnapshot) {
-//                UserSingleton.getInstance().getMainQueryResult()
-//                        .remove(mQueryMap.remove(dataSnapshot.getKey()));
-//            }
-//
-//            @Override
-//            public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-//
-//            @Override
-//            public void onCancelled(DatabaseError databaseError) {
-//                Log.w(TAG, "onCancelled: " + databaseError.getMessage(), databaseError.toException());
-//            }
-//        };
-//
-//        mQuery.addChildEventListener(mChildListener);
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
         mPagerAdapter = new MainPagerAdapter(getFragmentManager(), mCategorySubMenu);
+
         mViewPager.setAdapter(mPagerAdapter);
         mTabLayout.setupWithViewPager(mViewPager, true);
         mViewPager.setPageTransformer(true, new DepthPageTransformer());
+        mViewPager.setOffscreenPageLimit(4);
+
         // Add a listener to check Navigation Drawer items as we scroll through them
         mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener(){
             MenuItem currentItem = mCategorySubMenu.getItem(mViewPager.getCurrentItem());
@@ -165,9 +113,24 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    protected void onStop() {
-        super.onStop();
-//        mQuery.removeEventListener(mChildListener);
+    protected void onStart() {
+        super.onStart();
+        checkForAuthorizedUser();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == GOOGLE_SIGN_IN) {
+            if (resultCode == RESULT_OK) {
+                // user is signed in!
+                startActivity(new Intent(this, PortfolioActivity.class));
+            } else {
+                // user is not signed in. Maybe just wait for the user to press
+                // "sign in" again, or show a message
+                Toast.makeText(mViewPager.getContext(), "Sign in failed", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     @Override
@@ -180,21 +143,21 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.action_search:
-//                break;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_search:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
@@ -250,21 +213,6 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == MainActivity.GOOGLE_SIGN_IN) {
-            if (resultCode == RESULT_OK) {
-                // user is signed in!
-                startActivity(new Intent(this, PortfolioActivity.class));
-            } else {
-                // user is not signed in. Maybe just wait for the user to press
-                // "sign in" again, or show a message
-                Toast.makeText(mViewPager.getContext(), "Sign in failed", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
-
     private synchronized void buildGoogleApiClient() {
         PlacesHelper helper = new PlacesHelper(mGoogleApiClient);
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -300,5 +248,10 @@ public class MainActivity extends AppCompatActivity
             mDisplayName.setVisibility(View.GONE);
             mEmailAddress.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onQueryFragmentInteration() {
+
     }
 }

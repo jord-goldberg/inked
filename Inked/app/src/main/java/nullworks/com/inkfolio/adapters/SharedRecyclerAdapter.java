@@ -86,7 +86,6 @@ public class SharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder>
                     } else {
                         mClickedViewHolder.getMainImage().setImageAlpha(255);
                         mClickedViewHolder.getFab().setVisibility(View.GONE);
-                        mClickedViewHolder.setClicked(false);
                         mClickedViewHolder = holder;
                     }
                 }
@@ -106,6 +105,9 @@ public class SharedRecyclerAdapter extends RecyclerView.Adapter<MediaViewHolder>
             @Override
             public void onClick(View view) {
                 mListener.onSharedClicked(mData.get(position));
+                notifyItemRemoved(position);
+                holder.getMainImage().setImageAlpha(255);
+                holder.getFab().setVisibility(View.GONE);
                 mClickedModel = null;
                 mClickedViewHolder = null;
             }

@@ -4,6 +4,7 @@ package nullworks.com.inkfolio.adapters;
 import android.app.Fragment;
 
 import android.app.FragmentManager;
+import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v13.app.FragmentStatePagerAdapter;
 import android.view.Menu;
 
@@ -13,7 +14,7 @@ import nullworks.com.inkfolio.fragments.TagQueryFragment;
 /**
  * Created by joshuagoldberg on 9/2/16.
  */
-public class MainPagerAdapter extends FragmentStatePagerAdapter {
+public class MainPagerAdapter extends FragmentPagerAdapter {
 
     private Menu mCategoryMenu;
 

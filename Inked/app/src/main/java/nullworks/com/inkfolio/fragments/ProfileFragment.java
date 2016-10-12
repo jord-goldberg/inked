@@ -118,7 +118,7 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
         // Check to see if user is connected with Instagram
         if (mUserFlag == 3 || mUserFlag == 8 || mUserFlag == 10 || mUserFlag == 15) { // is connetcted
             mInstaUserNameCard.setVisibility(View.VISIBLE);
-            mInstaUserNameText.setText("Follow " + mUser.getUser().getUsername() + " on ");
+            mInstaUserNameText.setText("Follow " + mUser.getUser().getUsername() + " on");
         } else { // not connected
             mInstaLoginLayout.setVisibility(View.VISIBLE);
             mInstaLoginCard.setOnClickListener(this);
@@ -173,7 +173,7 @@ public class ProfileFragment extends Fragment implements OnMapReadyCallback, Vie
         double lat = mUser.getLocation().getLatitude();
         double lng = mUser.getLocation().getLongitude();
         LatLng userLocation = new LatLng(lat, lng);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 10));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(userLocation, 11));
     }
 
     @Override
